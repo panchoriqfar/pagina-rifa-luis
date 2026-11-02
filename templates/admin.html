@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración | Rifa Solidaria Luis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800">
+
+  {% if not is_authenticated %}
+  <!-- VISTA DE LOGIN DEL ADMINISTRADOR -->
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-8 max-w-md w-full border border-slate-200 shadow-xl space-y-6">
+      <div class="text-center">
+        <span class="text-4xl">🔐</span>
+        <h2 class="text-2xl font-extrabold text-slate-900 mt-2">Panel Administrador</h2>
+        <p class="text-xs text-slate-500 mt-1">Gran Rifa Solidaria Luis Henríquez</p>
+      </div>
+
+      <form id="login-form" onsubmit="submitLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Contraseña de Administrador</label>
+          <input type="password" id="admin_password" required placeholder="Ingresa la contraseña..."
+                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+
+        <button type="submit" id="btn-login" class="w-full py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm rounded-xl transition shadow-lg shadow-sky-600/30">
+          Ingresar al Panel
+        </button>
+      </form>
+      <div class="text-center">
+        <a href="/" class="text-xs text-sky-600 hover:underline">← Volver al sitio público</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function submitLogin(e) {
+      e.preventDefault();
+      const pwd = document.getElementById("admin_password").value;
+      const btn = document.getElementById("btn-login");
+      btn.disabled = true;
+      btn.innerText = "Verificando...";
+
+      try {
+        const resp = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: pwd })
+        });
+        if (resp.ok) {
+          window.location.reload();
+        } else {
+          alert("Contraseña incorrecta");
+        }
+      } catch (err) {
+        alert("Error de conexión");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Ingresar al Panel";
+      }
+    }
+  </script>
+
+  {% else %}
+  <!-- PANEL ADMINISTRADOR AUTENTICADO -->
+  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">⚙️</span>
+        <div>
+          <h1 class="font-extrabold text-base sm:text-lg leading-tight">Administración Rifa Luis</h1>
+          <p class="text-xs text-slate-400">Control de pagos, transferencias y sorteo</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <a href="/api/admin/export-csv" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition flex items-center space-x-1.5 shadow-sm">
+          <span>📊 Exportar CSV para Sorteo</span>
+        </a>
+        <a href="/" target="_blank" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition">
+          Ver Sitio Público ↗
+        </a>
+        <button onclick="logoutAdmin()" class="px-3 py-1.5 bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-semibold rounded-xl transition">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+    <!-- DASHBOARD DE MÉTRICAS -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Recaudado</span>
+        <span class="text-2xl font-extrabold text-emerald-600 mt-1 block">
+          ${{ "{:,.0f}".format(metrics.total_collected).replace(",", ".") }} CLP
+        </span>
+        <span class="text-xs text-slate-500 mt-1 block">De ${{ "{:,.0f}".format(metrics.total_tickets * ticket_price).replace(",", ".") }} CLP meta</span>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Números Vendidos</span>
+        <span class="text-2xl font-extrabold text-sky-600 mt-1 block">
+          {{ metrics.sold_count }} / {{ metrics.total_tickets }}
+        </span>
+        <span class="text-xs text-slate-500 mt-1 block">{{ metrics.sold_percentage }}% del total</span>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">En Reserva</span>
+        <span class="text-2xl font-extrabold text-amber-500 mt-1 block">
+          {{ metrics.reserved_count }}
+        </span>
+        <span class="text-xs text-slate-500 mt-1 block">Esperando validación</span>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Disponibles</span>
+        <span class="text-2xl font-extrabold text-slate-700 mt-1 block">
+          {{ metrics.available_count }}
+        </span>
+        <span class="text-xs text-slate-500 mt-1 block">Listos para comprar</span>
+      </div>
+    </section>
+
+    <!-- VALIDACIÓN DE TRANSFERENCIAS PENDIENTES -->
+    <section class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+        <div>
+          <h2 class="text-lg font-extrabold text-slate-900">Validación de Transferencias (CuentaRUT)</h2>
+          <p class="text-xs text-slate-500">Revisa comprobantes recibidos por WhatsApp y aprueba o libera las reservas.</p>
+        </div>
+        <button onclick="window.location.reload()" class="text-xs text-sky-600 font-semibold hover:underline">
+          🔄 Actualizar lista
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-600">
+          <thead class="bg-slate-50 text-slate-700 uppercase font-bold text-[11px] border-b border-slate-100">
+            <tr>
+              <th class="p-3">N° Orden</th>
+              <th class="p-3">Comprador</th>
+              <th class="p-3">WhatsApp / Teléfono</th>
+              <th class="p-3">Números</th>
+              <th class="p-3">Monto</th>
+              <th class="p-3">Estado</th>
+              <th class="p-3 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% set pending_orders = orders | selectattr('payment_status', 'equalto', 'pending') | list %}
+            {% if pending_orders | length == 0 %}
+              <tr>
+                <td colspan="7" class="p-4 text-center text-slate-400">No hay transferencias pendientes en este momento.</td>
+              </tr>
+            {% else %}
+              {% for order in pending_orders %}
+              <tr class="hover:bg-slate-50/80">
+                <td class="p-3 font-extrabold text-slate-900">{{ order.id }}</td>
+                <td class="p-3">
+                  <div class="font-bold text-slate-800">{{ order.buyer_name }}</div>
+                  <div class="text-[11px] text-slate-400">{{ order.buyer_email }}</div>
+                </td>
+                <td class="p-3">
+                  {% set clean_phone = order.buyer_phone | replace('+', '') | replace(' ', '') %}
+                  <a href="https://wa.me/{{ clean_phone }}" target="_blank" class="inline-flex items-center space-x-1 text-emerald-600 font-bold hover:underline">
+                    <span>💬 {{ order.buyer_phone }}</span>
+                  </a>
+                </td>
+                <td class="p-3">
+                  {% for n in order.numbers_list %}
+                    <span class="inline-block px-1.5 py-0.5 bg-sky-50 text-sky-700 font-bold rounded mr-1">#{{ "%02d"|format(n) }}</span>
+                  {% endfor %}
+                </td>
+                <td class="p-3 font-extrabold text-slate-900">
+                  ${{ "{:,.0f}".format(order.total_amount).replace(",", ".") }} CLP
+                </td>
+                <td class="p-3">
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                    PENDIENTE
+                  </span>
+                </td>
+                <td class="p-3 text-right space-x-2">
+                  <button onclick="approveOrder('{{ order.id }}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow-sm">
+                    ✓ Aprobar Pago
+                  </button>
+                  <button onclick="releaseOrder('{{ order.id }}')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg border border-rose-200">
+                    ✕ Liberar
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FORMULARIO DE VENTA MANUAL DIRECTA (WHATSAPP / PRESENCIAL) -->
+    <section class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+      <div>
+        <h2 class="text-lg font-extrabold text-slate-900">Venta Manual Directa (Compras por WhatsApp o Efectivo)</h2>
+        <p class="text-xs text-slate-500">Asigna números directamente como "Vendido" para pagos recibidos fuera de la pasarela.</p>
+      </div>
+
+      <form id="manual-sale-form" onsubmit="submitManualSale(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nombre Completo *</label>
+          <input type="text" id="manual_name" required placeholder="Nombre y Apellido"
+                 class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Teléfono Móvil *</label>
+          <input type="text" id="manual_phone" required placeholder="+56912345678"
+                 class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Email (Opcional para recibo)</label>
+          <input type="email" id="manual_email" placeholder="correo@ejemplo.com"
+                 class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Número(s) a asignar * (ej: 5, 12)</label>
+          <input type="text" id="manual_numbers" required placeholder="1, 23, 77"
+                 class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+
+        <div class="sm:col-span-4 flex justify-end">
+          <button type="submit" id="btn-manual-sale" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition shadow">
+            + Registrar Venta y Asignar Números
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- TABLA MAESTRA DE LOS 100 NÚMEROS -->
+    <section class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+        <div>
+          <h2 class="text-lg font-extrabold text-slate-900">Tabla Maestra de los 100 Números (1 al 100)</h2>
+          <p class="text-xs text-slate-500">Listado confidencial completo para la transmisión oficial del sorteo.</p>
+        </div>
+
+        <!-- Buscador en tiempo real de la tabla -->
+        <div class="max-w-xs w-full">
+          <input type="text" id="table-filter" onkeyup="filterMasterTable()" placeholder="Buscar por número, nombre o teléfono..."
+                 class="w-full px-3.5 py-1.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+      </div>
+
+      <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+        <table id="master-table" class="w-full text-left text-xs text-slate-600">
+          <thead class="bg-slate-100 text-slate-700 uppercase font-bold text-[11px] sticky top-0">
+            <tr>
+              <th class="p-3">#</th>
+              <th class="p-3">Estado</th>
+              <th class="p-3">Comprador</th>
+              <th class="p-3">Iniciales</th>
+              <th class="p-3">Teléfono</th>
+              <th class="p-3">Email</th>
+              <th class="p-3">Medio de Pago</th>
+              <th class="p-3">ID Orden</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for t in tickets %}
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-3 font-extrabold text-slate-900 text-sm">#{{ "%02d"|format(t.number) }}</td>
+              <td class="p-3">
+                {% if t.status == 'sold' %}
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">VENDIDO</span>
+                {% elif t.status == 'reserved' %}
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">RESERVADO</span>
+                {% else %}
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">DISPONIBLE</span>
+                {% endif %}
+              </td>
+              <td class="p-3 font-bold text-slate-800">{{ t.buyer_name or '-' }}</td>
+              <td class="p-3 font-semibold text-slate-500">{{ t.buyer_initials or '-' }}</td>
+              <td class="p-3">{{ t.buyer_phone or '-' }}</td>
+              <td class="p-3">{{ t.buyer_email or '-' }}</td>
+              <td class="p-3 uppercase text-[10px] font-semibold text-slate-500">{{ t.payment_method or '-' }}</td>
+              <td class="p-3 font-mono text-[11px]">{{ t.order_id or '-' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    async function logoutAdmin() {
+      await fetch("/api/admin/logout", { method: "POST" });
+      window.location.reload();
+    }
+
+    async function approveOrder(orderId) {
+      if (!confirm(`¿Estás seguro de APROBAR el pago de la orden ${orderId}? Los números pasarán a Vendido y se enviará el comprobante.`)) return;
+
+      try {
+        const resp = await fetch(`/api/admin/orders/${orderId}/approve`, { method: "POST" });
+        const data = await resp.json();
+        if (resp.ok) {
+          alert("¡Orden aprobada exitosamente!");
+          window.location.reload();
+        } else {
+          alert(data.detail || "Error al aprobar la orden");
+        }
+      } catch (e) {
+        alert("Error de conexión");
+      }
+    }
+
+    async function releaseOrder(orderId) {
+      if (!confirm(`¿Deseas cancelar la reserva de la orden ${orderId} y LIBERAR los números de inmediato?`)) return;
+
+      try {
+        const resp = await fetch(`/api/admin/orders/${orderId}/release`, { method: "POST" });
+        const data = await resp.json();
+        if (resp.ok) {
+          alert("Números liberados exitosamente.");
+          window.location.reload();
+        } else {
+          alert(data.detail || "Error al liberar la orden");
+        }
+      } catch (e) {
+        alert("Error de conexión");
+      }
+    }
+
+    async function submitManualSale(e) {
+      e.preventDefault();
+      const name = document.getElementById("manual_name").value.trim();
+      const phone = document.getElementById("manual_phone").value.trim();
+      const email = document.getElementById("manual_email").value.trim() || null;
+      const numbersRaw = document.getElementById("manual_numbers").value.trim();
+
+      // Convertir "1, 2, 3" a array de int
+      const numbers = numbersRaw.split(",")
+        .map(n => parseInt(n.trim()))
+        .filter(n => !isNaN(n) && n >= 1 && n <= 100);
+
+      if (numbers.length === 0) {
+        alert("Por favor ingresa al menos un número válido entre 1 y 100.");
+        return;
+      }
+
+      const btn = document.getElementById("btn-manual-sale");
+      btn.disabled = true;
+
+      try {
+        const resp = await fetch("/api/admin/manual-sale", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            numbers: numbers,
+            buyer_name: name,
+            buyer_phone: phone,
+            buyer_email: email
+          })
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+          alert("¡Venta manual registrada exitosamente!");
+          window.location.reload();
+        } else {
+          alert(data.detail || "Error al registrar la venta");
+        }
+      } catch (err) {
+        alert("Error de conexión");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function filterMasterTable() {
+      const input = document.getElementById("table-filter").value.toLowerCase();
+      const rows = document.querySelectorAll("#master-table tbody tr");
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(input) ? "" : "none";
+      });
+    }
+  </script>
+  {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Pasarela Flow.cl | Modo de Pruebas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-6">
+    <!-- Header simulador -->
+    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+      <div class="flex items-center space-x-2">
+        <span class="text-2xl font-black tracking-tight text-blue-600">flow<span class="text-emerald-500">.cl</span></span>
+      </div>
+      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 uppercase tracking-wider">
+        Ambiente de Prueba
+      </span>
+    </div>
+
+    <!-- Resumen de Orden -->
+    <div class="space-y-3">
+      <div class="text-center">
+        <p class="text-xs text-slate-400">Total a Pagar</p>
+        <p class="text-3xl font-extrabold text-slate-900 mt-0.5">
+          ${{ "{:,.0f}".format(order.total_amount).replace(",", ".") }} CLP
+        </p>
+      </div>
+
+      <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-xs space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Comercio:</span>
+          <span class="font-bold text-slate-700">Rifa Solidaria Luis</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">N° Orden:</span>
+          <span class="font-bold text-slate-700">{{ order.id }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Comprador:</span>
+          <span class="font-bold text-slate-700">{{ order.buyer_name }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Números:</span>
+          <span class="font-bold text-sky-600">
+            {% for n in order.numbers_list %}#{{ "%02d"|format(n) }} {% endfor %}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simulación de selección de tarjeta -->
+    <div class="space-y-2">
+      <p class="text-xs font-bold text-slate-700">Selecciona el resultado de la transacción simulada:</p>
+      <form action="/api/mock-flow/confirm" method="POST" class="space-y-3">
+        <input type="hidden" name="order_id" value="{{ order.id }}">
+
+        <button type="submit" name="action" value="pay"
+                class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center space-x-2">
+          <span>✓ Simular Pago Aprobado</span>
+        </button>
+
+        <button type="submit" name="action" value="cancel"
+                class="w-full py-3 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-bold text-xs rounded-xl transition border border-slate-200">
+          ✕ Cancelar o Rechazar Transacción
+        </button>
+      </form>
+    </div>
+
+    <div class="text-center pt-2">
+      <p class="text-[11px] text-slate-400">
+        Este simulador permite probar el flujo completo de compra sin requerir credenciales de producción activas de Flow.
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>
