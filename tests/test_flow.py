@@ -3,6 +3,13 @@ import main
 
 def test_full_flow():
     with TestClient(main.app) as client:
+        # 0. Verificar vistas HTML principales (/ y /admin)
+        home_res = client.get("/")
+        assert home_res.status_code == 200, home_res.text
+        admin_res = client.get("/admin")
+        assert admin_res.status_code == 200, admin_res.text
+        print("✓ PASS: Vistas HTML / y /admin renderizadas correctamente.")
+
         # 1. Verificar tickets inicializados
         res = client.get("/api/tickets")
         assert res.status_code == 200, res.text

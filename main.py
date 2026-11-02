@@ -114,21 +114,25 @@ async def health_check():
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, db: Session = Depends(get_db)):
     grid = get_public_grid(db)
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "grid": grid,
-        "ticket_price": TICKET_PRICE,
-        "total_tickets": TOTAL_TICKETS,
-        "whatsapp_number": WHATSAPP_NUMBER,
-        "draw_date": DRAW_DATE,
-        "bank_info": {
-            "name": BANK_BENEFICIARY_NAME,
-            "rut": BANK_BENEFICIARY_RUT,
-            "bank": BANK_NAME,
-            "account_type": BANK_ACCOUNT_TYPE,
-            "account_number": BANK_ACCOUNT_NUMBER
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={
+            "request": request,
+            "grid": grid,
+            "ticket_price": TICKET_PRICE,
+            "total_tickets": TOTAL_TICKETS,
+            "whatsapp_number": WHATSAPP_NUMBER,
+            "draw_date": DRAW_DATE,
+            "bank_info": {
+                "name": BANK_BENEFICIARY_NAME,
+                "rut": BANK_BENEFICIARY_RUT,
+                "bank": BANK_NAME,
+                "account_type": BANK_ACCOUNT_TYPE,
+                "account_number": BANK_ACCOUNT_NUMBER
+            }
         }
-    })
+    )
 
 @app.get("/api/tickets", response_model=PublicGridResponse)
 async def get_tickets(db: Session = Depends(get_db)):
@@ -199,11 +203,15 @@ async def flow_simulation(request: Request, order_id: str, db: Session = Depends
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
-    return templates.TemplateResponse("flow_mock.html", {
-        "request": request,
-        "order": order,
-        "ticket_price": TICKET_PRICE
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="flow_mock.html",
+        context={
+            "request": request,
+            "order": order,
+            "ticket_price": TICKET_PRICE
+        }
+    )
 
 @app.post("/api/mock-flow/confirm")
 async def mock_flow_confirm(order_id: str = Form(...), action: str = Form(...), db: Session = Depends(get_db)):
@@ -321,16 +329,20 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
         db_orders = db.query(Order).order_by(Order.created_at.desc()).all()
         orders = [o.to_dict() for o in db_orders]
 
-    return templates.TemplateResponse("admin.html", {
-        "request": request,
-        "is_authenticated": is_authenticated,
-        "metrics": metrics,
-        "tickets": tickets,
-        "orders": orders,
-        "whatsapp_number": WHATSAPP_NUMBER,
-        "ticket_price": TICKET_PRICE,
-        "draw_date": DRAW_DATE
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="admin.html",
+        context={
+            "request": request,
+            "is_authenticated": is_authenticated,
+            "metrics": metrics,
+            "tickets": tickets,
+            "orders": orders,
+            "whatsapp_number": WHATSAPP_NUMBER,
+            "ticket_price": TICKET_PRICE,
+            "draw_date": DRAW_DATE
+        }
+    )
 
 @app.post("/api/admin/login")
 async def admin_login(payload: AdminLoginRequest, response: Response):
