@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: rifa-solidaria-luis
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: DATABASE_URL
+        sync: false
+      - key: FLOW_API_KEY
+        sync: false
+      - key: FLOW_SECRET_KEY
+        sync: false
+      - key: FLOW_URL
+        value: "https://www.flow.cl/api"
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: WHATSAPP_NUMBER
+        value: "56927178289"
+      - key: BANK_BENEFICIARY_NAME
+        value: "FRANCISCO ANDRES RIQUELME FARIAS"
+      - key: BANK_BENEFICIARY_RUT
+        value: "18.240.046-7"
+      - key: BANK_NAME
+        value: "Banco Estado"
+      - key: BANK_ACCOUNT_TYPE
+        value: "CuentaRUT"
+      - key: BANK_ACCOUNT_NUMBER
+        value: "18240046"
+      - key: TICKET_PRICE
+        value: "2000"
+      - key: TOTAL_TICKETS
+        value: "100"
+      - key: DRAW_DATE
+        value: "10 de diciembre de 2026"

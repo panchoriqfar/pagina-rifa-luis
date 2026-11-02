@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gran Rifa Solidaria Luis Henríquez</title>
+  <title>Gran Rifa Solidaria Luis Henríquez | Sorteo Oficial</title>
+  <meta name="description" content="Rifa solidaria oficial a beneficio de Luis Henríquez. 100 números disponibles a $2.000 CLP. Pago automático con Flow.cl (Webpay) o Transferencia CuentaRUT.">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Plus Jakarta Sans & Inter -->
@@ -12,25 +13,37 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
-      background-color: #f3f8fb;
-      background-image: radial-gradient(circle at 50% 20%, rgba(14, 165, 233, 0.08), transparent 60%);
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      background-color: #f0f6fb;
+      background-image:
+        radial-gradient(circle at 18% 12%, rgba(14, 165, 233, 0.09), transparent 45%),
+        radial-gradient(circle at 82% 28%, rgba(2, 132, 199, 0.08), transparent 50%);
     }
     .raffle-card-glow {
-      box-shadow: 0 24px 65px -15px rgba(14, 116, 144, 0.14), 0 4px 16px -4px rgba(15, 23, 42, 0.04);
+      box-shadow:
+        0 28px 70px -15px rgba(14, 116, 144, 0.14),
+        0 8px 24px -6px rgba(15, 23, 42, 0.05);
+    }
+    .ticket-btn {
+      touch-action: manipulation;
+      transition: all 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ticket-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px -3px rgba(14, 165, 233, 0.22);
     }
     .ticket-mine {
-      background-color: #0ea5e9 !important;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
       color: #ffffff !important;
-      border-color: #0284c7 !important;
-      font-weight: 700 !important;
-      transform: scale(1.03);
-      box-shadow: 0 6px 14px -2px rgba(14, 165, 233, 0.38);
+      border-color: #0369a1 !important;
+      font-weight: 800 !important;
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 18px -3px rgba(14, 165, 233, 0.45) !important;
     }
     .ticket-sold {
-      background-color: #e9eff5 !important;
+      background-color: #eaeff5 !important;
       color: #7c8ea0 !important;
-      border-color: #dce5ec !important;
+      border-color: #dde5ed !important;
       cursor: not-allowed !important;
     }
     .ticket-reserved {
@@ -39,87 +52,138 @@
       border-color: #fde68a !important;
       cursor: not-allowed !important;
     }
+    .ticket-dimmed {
+      opacity: 0.22;
+      pointer-events: none;
+      transform: scale(0.96);
+    }
     @keyframes pulse-soft {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.78; }
+      50% { opacity: 0.72; }
     }
     .animate-pulse-soft {
       animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
+    .payment-card-active {
+      border-color: #0ea5e9 !important;
+      background-color: #f0f9ff !important;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.14);
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #receipt-card, #receipt-card * { visibility: visible; }
+      #receipt-card { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+    }
   </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between pb-20 sm:pb-0">
+
+  <!-- CONTENEDOR DE NOTIFICACIONES TOAST -->
+  <div id="toast-container" class="fixed top-4 right-4 z-[70] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
   <!-- TOP ANNOUNCEMENT BAR -->
-  <div class="bg-gradient-to-r from-[#0f3d5e] via-[#0284c7] to-[#0f3d5e] text-white text-xs sm:text-sm py-2 px-4 text-center font-medium shadow-sm">
-    <span>❤️ Rifa Solidaria oficial a beneficio de <strong>Luis Henríquez</strong> • Transparente y 100% certificada</span>
+  <div class="bg-gradient-to-r from-[#0b2e47] via-[#0284c7] to-[#0b2e47] text-white text-xs sm:text-sm py-2.5 px-4 text-center font-medium shadow-sm">
+    <div class="max-w-5xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-white/15 uppercase tracking-wider">En Vivo</span>
+      <span>❤️ Rifa Solidaria oficial a beneficio de <strong>Luis Henríquez</strong> • Pago instantáneo con <strong>Flow.cl</strong> o Transferencia</span>
+    </div>
   </div>
 
   <!-- NAVIGATION -->
-  <header class="bg-white/85 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-40">
+  <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-9 h-9 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <a href="#" class="flex items-center space-x-2.5 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white shadow-sm shadow-sky-500/20 group-hover:scale-105 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
           </svg>
         </div>
         <div>
-          <h1 class="font-bold text-slate-900 text-base sm:text-lg leading-tight">Rifa Solidaria Luis</h1>
-          <p class="text-xs text-sky-600 font-semibold">100 números • $2.000 CLP c/u</p>
+          <h1 class="font-extrabold text-slate-900 text-base sm:text-lg leading-tight">Rifa Solidaria Luis</h1>
+          <p class="text-[11px] sm:text-xs text-sky-600 font-bold">100 números • ${{ "{:,.0f}".format(ticket_price).replace(",", ".") }} CLP c/u</p>
         </div>
-      </div>
-      <div class="flex items-center space-x-2 sm:space-x-3">
-        <a href="#sorteo-grilla" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-sky-600 transition px-3 py-1.5 rounded-lg hover:bg-slate-50">
+      </a>
+
+      <nav class="flex items-center space-x-1 sm:space-x-2">
+        <a href="#sorteo-grilla" class="text-xs sm:text-sm font-semibold text-slate-700 hover:text-sky-600 transition px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-sky-50">
           Elegir Números
         </a>
-        <a href="#mis-numeros" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-sky-600 transition px-3 py-1.5 rounded-lg hover:bg-slate-50">
-          Mis Números
-        </a>
-        <a href="#premios" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-sky-600 transition px-3 py-1.5 rounded-lg hover:bg-slate-50">
+        <a href="#premios" class="hidden sm:inline-block text-sm font-semibold text-slate-700 hover:text-sky-600 transition px-3 py-1.5 rounded-lg hover:bg-sky-50">
           Premios
         </a>
-        <a href="/admin" class="text-xs text-slate-400 hover:text-slate-600 border border-slate-200 px-2.5 py-1 rounded-md">
+        <a href="#mis-numeros" class="text-xs sm:text-sm font-semibold text-slate-700 hover:text-sky-600 transition px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-sky-50">
+          Mis Números
+        </a>
+        <a href="/admin" class="text-[11px] font-semibold text-slate-400 hover:text-slate-700 border border-slate-200/80 px-2.5 py-1 rounded-lg hover:bg-slate-50 transition">
           Admin
         </a>
-      </div>
+      </nav>
     </div>
   </header>
 
   <!-- MAIN CONTENT -->
-  <main class="max-w-5xl mx-auto px-4 py-8 space-y-10 flex-grow w-full">
+  <main class="max-w-5xl mx-auto px-4 py-6 sm:py-9 space-y-9 flex-grow w-full">
 
     <!-- HERO SECTION -->
-    <section class="bg-white rounded-[24px] p-6 sm:p-9 border border-[#e2ecf2] raffle-card-glow relative overflow-hidden">
-      <div class="absolute -right-16 -top-16 w-64 h-64 bg-sky-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-cyan-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+    <section class="bg-white rounded-[28px] p-6 sm:p-9 border border-[#dce8f2] raffle-card-glow relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-72 h-72 bg-sky-100/70 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-72 h-72 bg-cyan-50/80 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div class="relative z-10 max-w-3xl">
-        <div class="inline-flex items-center space-x-2 px-3 py-1 bg-sky-50 border border-sky-200 rounded-full text-sky-800 text-xs font-semibold mb-4">
-          <span class="w-2 h-2 rounded-full bg-sky-500 animate-ping"></span>
-          <span>Causa Solidaria Oficial</span>
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <div class="lg:col-span-8 space-y-4">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 bg-sky-50 border border-sky-200 rounded-full text-sky-800 text-xs font-bold">
+            <span class="w-2 h-2 rounded-full bg-sky-500 animate-ping"></span>
+            <span>Campaña Solidaria 100% Directa y Transparente</span>
+          </div>
+
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+            Apoyemos con el corazón a <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#0284c7] to-[#0ea5e9]">Luis Henríquez</span>
+          </h2>
+
+          <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+            Luis atraviesa un delicado momento de salud y, además, fue víctima de una lamentable estafa laboral donde no recibió el pago por su trabajo. Esta rifa busca brindarle apoyo económico directo y urgente. <strong>¡Cada número que eliges suma y hace una gran diferencia!</strong>
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3 pt-1">
+            <a href="#sorteo-grilla" class="px-5 py-3 bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-sky-500/25 transition transform hover:-translate-y-0.5">
+              🎟️ Elegir mis números ahora
+            </a>
+            <a href="#mis-numeros" class="px-4 py-3 bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold text-xs sm:text-sm rounded-xl transition">
+              🔍 Consultar mi compra
+            </a>
+          </div>
         </div>
-        <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-          Apoyemos con el corazón a <span class="text-[#0284c7]">Luis Henríquez</span>
-        </h2>
-        <p class="mt-3.5 text-slate-600 text-sm sm:text-base leading-relaxed">
-          Luis atraviesa un momento delicado de salud y, además, fue víctima de una lamentable estafa laboral donde no le pagaron su trabajo. Esta rifa solidaria busca brindarle apoyo económico directo, transparente y urgente. ¡Cada número suma y hace la diferencia!
-        </p>
 
-        <!-- CARDS DE FECHA Y CONDICIÓN -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
-          <div class="flex items-center space-x-3 p-3.5 bg-[#f4f9fc] border border-[#dce8f0] rounded-2xl">
-            <span class="text-2xl">📅</span>
+        <!-- TARJETA RESUMEN DERECHA -->
+        <div class="lg:col-span-4 bg-gradient-to-b from-[#f4f9fd] to-[#eaf4fb] border border-[#d5e6f2] rounded-2xl p-5 space-y-3.5">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-sky-100 flex items-center justify-center text-xl shadow-sm">📅</div>
             <div>
-              <p class="text-[11px] text-[#0f4c75] font-bold uppercase tracking-wider">Fecha del Sorteo</p>
-              <p class="text-sm font-extrabold text-slate-800">{{ draw_date }} <span class="text-xs font-normal text-slate-500">(o al vender el 100%)</span></p>
+              <p class="text-[11px] text-[#0f4c75] font-extrabold uppercase tracking-wider">Fecha del Sorteo</p>
+              <p class="text-sm font-extrabold text-slate-900">{{ draw_date }}</p>
+              <p class="text-[11px] text-slate-500">O antes si se vende el 100% de números</p>
             </div>
           </div>
-          <div class="flex items-center space-x-3 p-3.5 bg-[#f4f9fc] border border-[#dce8f0] rounded-2xl">
-            <span class="text-2xl">🎯</span>
+
+          <div class="h-px bg-[#dceaf4]"></div>
+
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-sky-100 flex items-center justify-center text-xl shadow-sm">💳</div>
             <div>
-              <p class="text-[11px] text-[#0f4c75] font-bold uppercase tracking-wider">Valor por Número</p>
-              <p class="text-sm font-extrabold text-slate-800">$2.000 CLP <span class="text-xs font-normal text-slate-500">• Sorteo certificado en vivo</span></p>
+              <p class="text-[11px] text-[#0f4c75] font-extrabold uppercase tracking-wider">Valor por Número</p>
+              <p class="text-base font-extrabold text-[#0284c7]">${{ "{:,.0f}".format(ticket_price).replace(",", ".") }} CLP</p>
+              <p class="text-[11px] text-slate-500">Flow.cl (Webpay / Débito / MACH) o Transferencia</p>
+            </div>
+          </div>
+
+          <div class="h-px bg-[#dceaf4]"></div>
+
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-sky-100 flex items-center justify-center text-xl shadow-sm">🏆</div>
+            <div>
+              <p class="text-[11px] text-[#0f4c75] font-extrabold uppercase tracking-wider">Premio Mayor</p>
+              <p class="text-sm font-extrabold text-slate-900">$100.000 CLP en Efectivo</p>
+              <p class="text-[11px] text-slate-500">+ 2 grandes premios adicionales</p>
             </div>
           </div>
         </div>
@@ -127,47 +191,80 @@
     </section>
 
     <!-- TARJETA PRINCIPAL DEL SORTEO (Inspirada fielmente en imagen de ejemplo.jpeg) -->
-    <section id="sorteo-grilla" class="bg-white rounded-[24px] p-6 sm:p-10 border border-[#e2ecf2] raffle-card-glow">
+    <section id="sorteo-grilla" class="bg-white rounded-[28px] p-5 sm:p-10 border border-[#dce8f2] raffle-card-glow scroll-mt-20">
       
       <!-- HEADER DE LA TARJETA -->
-      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
-          <h3 class="text-xl sm:text-[22px] font-bold text-[#0f172a] tracking-tight">Sorteo Solidario Luis Henríquez</h3>
-          <p class="text-sm text-[#64748b] mt-1">Elige tus números — así lo ve tu comprador</p>
+          <div class="flex items-center gap-2.5">
+            <h3 class="text-xl sm:text-2xl font-extrabold text-[#0f172a] tracking-tight">Sorteo Solidario Luis Henríquez</h3>
+            <span id="live-sync-indicator" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> En línea
+            </span>
+          </div>
+          <p class="text-sm text-[#64748b] mt-1">Elige tus números —</p>
         </div>
 
         <!-- LEYENDA ESTILO IMAGEN DE EJEMPLO -->
-        <div class="flex flex-wrap items-center gap-4 text-xs sm:text-[13px] text-[#64748b] pt-0.5">
+        <div class="flex flex-wrap items-center gap-3.5 sm:gap-4 text-xs sm:text-[13px] text-[#64748b] pt-0.5">
           <div class="flex items-center space-x-1.5">
-            <span class="w-3.5 h-3.5 rounded-[4px] border border-[#cbd5e1] bg-white inline-block"></span>
-            <span>Libre</span>
+            <span class="w-3.5 h-3.5 rounded-[5px] border border-[#cbd5e1] bg-white inline-block shadow-2xs"></span>
+            <span>Libre (<strong id="stat-available" class="text-slate-700">{{ grid.available_count }}</strong>)</span>
           </div>
           <div class="flex items-center space-x-1.5">
-            <span class="w-3.5 h-3.5 rounded-[4px] bg-[#0ea5e9] inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-[5px] bg-[#0ea5e9] inline-block"></span>
             <span>Tuyo</span>
           </div>
           <div class="flex items-center space-x-1.5">
-            <span class="w-3.5 h-3.5 rounded-[4px] bg-[#fcd34d] inline-block"></span>
-            <span>Reservado</span>
+            <span class="w-3.5 h-3.5 rounded-[5px] bg-[#fcd34d] inline-block"></span>
+            <span>Reservado (<strong id="stat-reserved" class="text-slate-700">{{ grid.reserved_count }}</strong>)</span>
           </div>
           <div class="flex items-center space-x-1.5">
-            <span class="w-3.5 h-3.5 rounded-[4px] bg-[#e9eff5] border border-[#dce5ec] inline-block"></span>
-            <span>Vendido</span>
+            <span class="w-3.5 h-3.5 rounded-[5px] bg-[#eaeff5] border border-[#dce5ec] inline-block"></span>
+            <span>Vendido (<strong id="stat-sold" class="text-slate-700">{{ grid.sold_count }}</strong>)</span>
           </div>
         </div>
       </div>
 
       <!-- BARRA DE PROGRESO HORIZONTAL CON PORCENTAJE A LA DERECHA (Idéntico a imagen de ejemplo) -->
-      <div class="mt-6 mb-7 flex items-center gap-4">
-        <div class="flex-grow h-2.5 bg-[#ebf1f5] rounded-full overflow-hidden">
+      <div class="mt-6 mb-5 flex items-center gap-4">
+        <div class="flex-grow h-3 bg-[#eaf0f6] rounded-full overflow-hidden p-0.5">
           <div id="progress-bar" 
-               class="h-full bg-gradient-to-r from-[#0f3d5e] to-[#0ea5e9] rounded-full transition-all duration-700 ease-out" 
+               class="h-full bg-gradient-to-r from-[#0f3d5e] via-[#0284c7] to-[#0ea5e9] rounded-full transition-all duration-700 ease-out" 
                style="width: {{ [grid.sold_percentage, 2]|max if grid.sold_count > 0 else 0 }}%;">
           </div>
         </div>
         <div class="shrink-0 text-sm whitespace-nowrap">
-          <strong id="progress-pct" class="font-bold text-[#0f4c75]">{{ grid.sold_percentage|round|int if grid.sold_percentage == (grid.sold_percentage|round|int) else grid.sold_percentage }}%</strong>
+          <strong id="progress-pct" class="font-extrabold text-[#0f4c75]">{{ grid.sold_percentage|round|int if grid.sold_percentage == (grid.sold_percentage|round|int) else grid.sold_percentage }}%</strong>
           <span class="text-[#64748b]">vendido</span>
+        </div>
+      </div>
+
+      <!-- BARRA DE HERRAMIENTAS RÁPIDAS: SELECCIÓN AL AZAR Y FILTROS -->
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-2.5 bg-[#f8fbfe] border border-[#e3eef7] rounded-2xl p-2.5 sm:px-4">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="text-xs font-bold text-slate-500 mr-1">🎲 Suerte rápida:</span>
+          <button type="button" onclick="pickRandomNumbers(1)" class="px-2.5 py-1.5 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-slate-200/90 rounded-lg text-xs font-bold transition shadow-2xs">
+            +1 al azar
+          </button>
+          <button type="button" onclick="pickRandomNumbers(3)" class="px-2.5 py-1.5 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-slate-200/90 rounded-lg text-xs font-bold transition shadow-2xs">
+            +3 al azar
+          </button>
+          <button type="button" onclick="pickRandomNumbers(5)" class="px-2.5 py-1.5 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-slate-200/90 rounded-lg text-xs font-bold transition shadow-2xs">
+            +5 al azar
+          </button>
+        </div>
+
+        <div class="flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl text-xs">
+          <button type="button" onclick="setGridFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-lg font-bold bg-white text-slate-800 shadow-2xs transition">
+            Todos
+          </button>
+          <button type="button" onclick="setGridFilter('available')" id="filter-btn-available" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 transition">
+            Solo Libres
+          </button>
+          <button type="button" onclick="setGridFilter('sold')" id="filter-btn-sold" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 transition">
+            Vendidos
+          </button>
         </div>
       </div>
 
@@ -177,15 +274,19 @@
           {% set num_fmt = "%02d"|format(ticket.number) %}
           {% if ticket.status == 'sold' %}
             <div id="ticket-cell-{{ ticket.number }}"
-                 class="ticket-sold h-12 rounded-[10px] border flex flex-col items-center justify-center select-none px-1"
-                 title="Número vendido ({{ ticket.buyer_initials or 'Vendido' }})">
+                 data-status="sold"
+                 data-number="{{ ticket.number }}"
+                 class="ticket-sold h-12 sm:h-[52px] rounded-[11px] border flex flex-col items-center justify-center select-none px-1"
+                 title="Número #{{ num_fmt }} vendido ({{ ticket.buyer_initials or 'Vendido' }})">
               <span class="text-[13px] sm:text-sm font-semibold line-through decoration-[#7c8ea0] decoration-[1.5px] leading-none">{{ num_fmt }}</span>
-              <span class="text-[9px] font-bold text-[#64748b] uppercase leading-none mt-1">{{ ticket.buyer_initials or 'Vendido' }}</span>
+              <span class="text-[9px] font-extrabold text-[#64748b] uppercase leading-none mt-1 tracking-tight">{{ ticket.buyer_initials or 'Vendido' }}</span>
             </div>
           {% elif ticket.status == 'reserved' %}
             <div id="ticket-cell-{{ ticket.number }}"
-                 class="ticket-reserved h-12 rounded-[10px] border flex flex-col items-center justify-center select-none px-1 animate-pulse-soft"
-                 title="En proceso de pago">
+                 data-status="reserved"
+                 data-number="{{ ticket.number }}"
+                 class="ticket-reserved h-12 sm:h-[52px] rounded-[11px] border flex flex-col items-center justify-center select-none px-1 animate-pulse-soft"
+                 title="Número #{{ num_fmt }} en proceso de pago">
               <span class="text-[13px] sm:text-sm font-semibold leading-none">{{ num_fmt }}</span>
               <span class="text-[8px] font-bold text-amber-800 uppercase leading-none mt-1">Reserva</span>
             </div>
@@ -193,9 +294,10 @@
             <button type="button"
                     onclick="toggleNumber({{ ticket.number }})"
                     id="ticket-cell-{{ ticket.number }}"
+                    data-status="available"
                     data-number="{{ ticket.number }}"
-                    class="h-12 bg-white hover:border-[#0ea5e9] hover:text-[#0284c7] border border-[#dce5ec] text-[#0f172a] font-semibold text-[13px] sm:text-sm rounded-[10px] transition-all duration-150 flex flex-col items-center justify-center select-none focus:outline-none">
-              <span>{{ num_fmt }}</span>
+                    class="ticket-btn h-12 sm:h-[52px] bg-white hover:border-[#0ea5e9] hover:text-[#0284c7] border border-[#dbe5ee] text-[#0f172a] font-bold text-[13px] sm:text-sm rounded-[11px] flex flex-col items-center justify-center select-none focus:outline-none">
+              <span class="leading-none">{{ num_fmt }}</span>
             </button>
           {% endif %}
         {% endfor %}
@@ -204,23 +306,22 @@
       <!-- FOOTER DE LA TARJETA (Idéntico a la parte inferior de imagen de ejemplo.jpeg) -->
       <div class="mt-7 pt-5 border-t border-[#e8eef3] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center space-x-2.5">
-          <!-- Icono de ticket celeste como en la imagen de ejemplo -->
           <svg class="w-5 h-5 text-[#0ea5e9] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
           </svg>
-          <span id="card-footer-selection" class="text-sm font-bold text-[#0f172a]">
+          <span id="card-footer-selection" class="text-sm font-extrabold text-[#0f172a]">
             Ningún número seleccionado
           </span>
-          <button onclick="clearSelection()" id="btn-clear" class="hidden text-xs text-rose-600 font-semibold hover:underline ml-2">
-            (Desmarcar)
+          <button onclick="clearSelection()" id="btn-clear" class="hidden text-xs text-rose-600 font-bold hover:underline ml-2">
+            (Limpiar)
           </button>
         </div>
 
         <div class="flex items-center space-x-3">
           <span id="card-footer-right-text" class="text-xs sm:text-sm text-[#64748b]">
-            Haz clic en uno o más números libres para participar ($2.000 CLP c/u).
+            Haz clic en uno o más números libres para participar (${{ "{:,.0f}".format(ticket_price).replace(",", ".") }} CLP c/u).
           </span>
-          <button id="card-footer-pay-btn" onclick="openCheckoutModal()" class="hidden px-5 py-2.5 bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-sky-500/20 transition">
+          <button id="card-footer-pay-btn" onclick="openCheckoutModal()" class="hidden px-5 py-2.5 bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md shadow-sky-500/20 transition">
             Continuar y Pagar →
           </button>
         </div>
@@ -228,53 +329,76 @@
 
     </section>
 
-    <!-- PREMIOS -->
-    <section id="premios" class="space-y-4">
-      <div class="flex items-center justify-between">
+    <!-- CÓMO PARTICIPAR EN 3 PASOS -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-[#dce8f2] flex items-start space-x-3.5">
+        <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 font-extrabold text-sm flex items-center justify-center shrink-0">1</div>
         <div>
-          <h3 class="text-lg sm:text-xl font-bold text-slate-900">🏆 Premios de la Rifa</h3>
-          <p class="text-xs sm:text-sm text-slate-500">3 premios principales sorteados en vivo entre los 100 números</p>
+          <h4 class="font-bold text-slate-900 text-sm">Elige tus números</h4>
+          <p class="text-xs text-slate-500 mt-0.5">Selecciona en la grilla los números que más te gusten o usa el botón de selección al azar.</p>
         </div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-[#dce8f2] flex items-start space-x-3.5">
+        <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 font-extrabold text-sm flex items-center justify-center shrink-0">2</div>
+        <div>
+          <h4 class="font-bold text-slate-900 text-sm">Paga con Flow.cl o CuentaRUT</h4>
+          <p class="text-xs text-slate-500 mt-0.5">Paga en línea con Webpay/Débito/MACH vía Flow.cl (confirmación inmediata) o por transferencia.</p>
+        </div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-[#dce8f2] flex items-start space-x-3.5">
+        <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 font-extrabold text-sm flex items-center justify-center shrink-0">3</div>
+        <div>
+          <h4 class="font-bold text-slate-900 text-sm">Recibe tu comprobante</h4>
+          <p class="text-xs text-slate-500 mt-0.5">Tus iniciales aparecerán en los números vendidos y podrás descargar tu comprobante oficial.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PREMIOS -->
+    <section id="premios" class="space-y-4 scroll-mt-20">
+      <div>
+        <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">🏆 Premios Oficiales de la Rifa</h3>
+        <p class="text-xs sm:text-sm text-slate-500">3 premios principales sorteados en vivo entre los 100 números</p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- 1er Premio -->
-        <div class="bg-white p-5 rounded-[20px] border border-[#e2ecf2] shadow-sm relative overflow-hidden">
-          <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white mb-2">🥇 1er Premio</span>
-          <h4 class="text-xl font-extrabold text-slate-900">$100.000 CLP</h4>
-          <p class="text-xs text-slate-500 mt-1">En efectivo mediante transferencia inmediata al ganador.</p>
+        <div class="bg-gradient-to-br from-amber-50/70 via-white to-white p-6 rounded-[22px] border-2 border-amber-300/80 shadow-sm relative overflow-hidden">
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500 text-white mb-3 shadow-2xs">🥇 1er Premio Mayor</span>
+          <h4 class="text-2xl font-extrabold text-slate-900">$100.000 CLP</h4>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">En efectivo mediante transferencia bancaria inmediata al ganador o ganadora.</p>
         </div>
 
         <!-- 2do Premio -->
-        <div class="bg-white p-5 rounded-[20px] border border-[#e2ecf2] shadow-sm relative overflow-hidden">
-          <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-600 text-white mb-2">🥈 2do Premio</span>
-          <h4 class="text-lg font-bold text-slate-900">Canasta Familiar + Cena</h4>
-          <p class="text-xs text-slate-500 mt-1">Canasta familiar premium completa + Cena especial para dos personas.</p>
+        <div class="bg-white p-6 rounded-[22px] border border-[#dce8f2] shadow-sm relative overflow-hidden">
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-sky-600 text-white mb-3">🥈 2do Premio</span>
+          <h4 class="text-xl font-extrabold text-slate-900">Canasta Familiar + Cena</h4>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Canasta familiar premium completa + Cena especial para dos personas.</p>
         </div>
 
         <!-- 3er Premio -->
-        <div class="bg-white p-5 rounded-[20px] border border-[#e2ecf2] shadow-sm relative overflow-hidden">
-          <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-600 text-white mb-2">🥉 3er Premio</span>
-          <h4 class="text-lg font-bold text-slate-900">Audífonos + Sorpresa</h4>
-          <p class="text-xs text-slate-500 mt-1">Audífonos inalámbricos Bluetooth + Premio sorpresa adicional.</p>
+        <div class="bg-white p-6 rounded-[22px] border border-[#dce8f2] shadow-sm relative overflow-hidden">
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-600 text-white mb-3">🥉 3er Premio</span>
+          <h4 class="text-xl font-extrabold text-slate-900">Audífonos + Sorpresa</h4>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Audífonos inalámbricos Bluetooth de alta fidelidad + Premio sorpresa adicional.</p>
         </div>
       </div>
     </section>
 
     <!-- CONSULTAR MIS NÚMEROS -->
-    <section id="mis-numeros" class="bg-white rounded-[24px] p-6 sm:p-8 border border-[#e2ecf2] shadow-sm space-y-4">
+    <section id="mis-numeros" class="bg-white rounded-[24px] p-6 sm:p-8 border border-[#dce8f2] shadow-sm space-y-4 scroll-mt-20">
       <div>
-        <h3 class="text-lg font-bold text-slate-900">🔍 Consultar Mis Números Comprados</h3>
-        <p class="text-xs sm:text-sm text-slate-500">Ingresa tu correo electrónico o teléfono para verificar el estado de tus números (`Pagado` o `Pendiente de validación`).</p>
+        <h3 class="text-lg font-extrabold text-slate-900">🔍 Consultar Mis Números Comprados</h3>
+        <p class="text-xs sm:text-sm text-slate-500">Ingresa tu correo electrónico, teléfono o código de orden (ej. <code class="text-sky-700 font-bold">R-XXXXXX</code>) para ver el estado de tus números y descargar tu comprobante.</p>
       </div>
       
-      <div class="flex flex-col sm:flex-row gap-2 max-w-lg">
-        <input type="text" id="search-input" placeholder="Ej: correo@ejemplo.cl o +569..."
-               class="flex-grow px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
-        <button onclick="searchMyNumbers()" class="px-5 py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white text-sm font-semibold rounded-xl transition">
-          Consultar
+      <form onsubmit="event.preventDefault(); searchMyNumbers();" class="flex flex-col sm:flex-row gap-2.5 max-w-xl">
+        <input type="text" id="search-input" placeholder="Ej: correo@ejemplo.cl, +569... o código R-..."
+               class="flex-grow px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+        <button type="submit" id="btn-search-orders" class="px-6 py-3 bg-[#0f172a] hover:bg-slate-800 text-white text-sm font-bold rounded-xl transition shrink-0">
+          Consultar Estado
         </button>
-      </div>
+      </form>
 
       <div id="search-results" class="hidden space-y-3 pt-2"></div>
     </section>
@@ -282,24 +406,27 @@
   </main>
 
   <!-- BARRA FLOTANTE DE SELECCIÓN Y CHECKOUT -->
-  <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-2xl transform translate-y-full transition-transform duration-300 z-30">
+  <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 p-3.5 sm:p-4 shadow-2xl transform translate-y-full transition-transform duration-300 z-30">
     <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div class="flex items-center space-x-3 w-full sm:w-auto">
-        <div class="bg-sky-50 px-3.5 py-2 rounded-xl border border-sky-200">
-          <span class="text-[#0284c7] text-lg font-extrabold" id="bar-count">0</span>
+      <div class="flex items-center justify-between sm:justify-start space-x-3 w-full sm:w-auto">
+        <div class="flex items-center space-x-3">
+          <div class="bg-sky-50 px-3.5 py-1.5 rounded-xl border border-sky-200">
+            <span class="text-[#0284c7] text-lg font-extrabold" id="bar-count">0</span>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-500 font-medium">Números seleccionados:</p>
+            <p class="text-xs sm:text-sm font-extrabold text-slate-800 truncate max-w-[220px] sm:max-w-xs" id="bar-numbers-list">-</p>
+          </div>
         </div>
-        <div>
-          <p class="text-xs text-slate-500">Números seleccionados:</p>
-          <p class="text-sm font-extrabold text-slate-800" id="bar-numbers-list">-</p>
-        </div>
+        <button onclick="clearSelection()" class="sm:hidden text-xs text-rose-600 font-bold px-2 py-1">Limpiar</button>
       </div>
 
       <div class="flex items-center justify-between sm:justify-end space-x-4 w-full sm:w-auto">
-        <div class="text-right">
-          <p class="text-xs text-slate-500">Total a pagar</p>
-          <p class="text-xl font-extrabold text-[#0284c7]" id="bar-total">$0 CLP</p>
+        <div class="text-left sm:text-right">
+          <p class="text-[11px] text-slate-500">Total a pagar</p>
+          <p class="text-lg sm:text-xl font-extrabold text-[#0284c7]" id="bar-total">$0 CLP</p>
         </div>
-        <button onclick="openCheckoutModal()" class="px-6 py-3 bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-bold text-sm rounded-xl shadow-lg shadow-sky-500/30 transition transform hover:-translate-y-0.5">
+        <button onclick="openCheckoutModal()" class="px-6 py-3 bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-extrabold text-sm rounded-xl shadow-lg shadow-sky-500/30 transition transform hover:-translate-y-0.5">
           Continuar y Pagar →
         </button>
       </div>
@@ -308,79 +435,100 @@
 
   <!-- MODAL DE CHECKOUT (DATOS DEL COMPRADOR Y ELECCIÓN DE PAGO) -->
   <div id="checkout-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-      <button onclick="closeCheckoutModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto border border-slate-100">
+      <button onclick="closeCheckoutModal()" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold transition">✕</button>
 
-      <div class="mb-5">
-        <span class="text-xs font-bold text-sky-600 uppercase tracking-wider">Reserva de Números</span>
-        <h3 class="text-2xl font-extrabold text-slate-900">Completa tus datos</h3>
-        <p class="text-xs text-slate-500 mt-1">Tus números quedarán bloqueados temporalmente para que completes el pago con tranquilidad.</p>
+      <div class="mb-4">
+        <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-sky-600 uppercase tracking-wider">
+          <span>🔒 Reserva Segura de Números</span>
+        </span>
+        <h3 class="text-2xl font-extrabold text-slate-900 mt-0.5">Completa tus datos</h3>
+        <p class="text-xs text-slate-500 mt-1">Tus números quedarán reservados mientras completas el pago.</p>
       </div>
 
       <!-- RESUMEN DE LA COMPRA -->
-      <div class="bg-[#f4f9fc] p-3.5 rounded-2xl border border-[#dce8f0] mb-5 flex justify-between items-center text-sm">
-        <div>
-          <span class="text-xs text-slate-500 block">Números elegidos:</span>
-          <span class="font-extrabold text-slate-800" id="modal-numbers-summary">-</span>
+      <div class="bg-[#f4f9fc] p-4 rounded-2xl border border-[#dce8f0] mb-5 flex justify-between items-center text-sm">
+        <div class="pr-2">
+          <span class="text-[11px] text-slate-500 font-semibold block">Números seleccionados:</span>
+          <span class="font-extrabold text-slate-900 text-sm sm:text-base" id="modal-numbers-summary">-</span>
         </div>
-        <div class="text-right">
-          <span class="text-xs text-slate-500 block">Monto Total:</span>
-          <span class="font-extrabold text-[#0284c7] text-base" id="modal-total-summary">$0 CLP</span>
+        <div class="text-right shrink-0">
+          <span class="text-[11px] text-slate-500 font-semibold block">Total a pagar:</span>
+          <span class="font-extrabold text-[#0284c7] text-lg" id="modal-total-summary">$0 CLP</span>
         </div>
       </div>
 
       <form id="order-form" onsubmit="submitOrder(event)" class="space-y-4">
-        <!-- NOMBRE COMPLETO -->
+        <!-- NOMBRE COMPLETO CON VISTA PREVIA DE INICIALES -->
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Nombre y Apellido *</label>
-          <input type="text" id="buyer_name" required placeholder="Ej: Francisco Riquelme"
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-bold text-slate-700">Nombre y Apellido *</label>
+            <span id="initials-preview" class="text-[11px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200 hidden">
+              En grilla: -
+            </span>
+          </div>
+          <input type="text" id="buyer_name" required placeholder="Ingresa tu Nombre y Apellido" oninput="updateInitialsPreview()"
                  class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
-          <p class="text-[11px] text-slate-400 mt-0.5">En la grilla pública solo se mostrarán tus iniciales (ej: F. R.) por privacidad.</p>
+          <p class="text-[11px] text-slate-400 mt-1">En el tablero público se mostrarán automáticamente las iniciales de tu nombre y apellido por privacidad.</p>
         </div>
 
-        <!-- TELÉFONO -->
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Teléfono (WhatsApp) *</label>
-          <input type="tel" id="buyer_phone" required placeholder="+56912345678"
-                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
-        </div>
-
-        <!-- CORREO ELECTRÓNICO -->
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Correo Electrónico *</label>
-          <input type="email" id="buyer_email" required placeholder="tu-correo@ejemplo.cl"
-                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
-          <p class="text-[11px] text-slate-400 mt-0.5">Recibirás aquí tu comprobante digital oficial al confirmarse el pago.</p>
+        <!-- TELÉFONO Y CORREO -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Teléfono (WhatsApp) *</label>
+            <input type="tel" id="buyer_phone" required placeholder="+56912345678"
+                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Correo Electrónico *</label>
+            <input type="email" id="buyer_email" required placeholder="tucorreo@ejemplo.cl"
+                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
         </div>
 
         <!-- SELECCIÓN MÉTODO DE PAGO -->
-        <div class="pt-2">
-          <label class="block text-xs font-bold text-slate-700 mb-2">Selecciona el método de pago:</label>
+        <div class="pt-1">
+          <label class="block text-xs font-bold text-slate-700 mb-2">Elige cómo deseas pagar:</label>
           
           <div class="space-y-2.5">
-            <!-- Opción A: Flow -->
-            <label class="flex items-start p-3.5 rounded-2xl border-2 border-slate-200 hover:border-sky-500 cursor-pointer transition">
-              <input type="radio" name="payment_method" value="flow" checked class="mt-1 text-sky-600 focus:ring-sky-500">
-              <div class="ml-3">
-                <span class="block text-sm font-bold text-slate-900">Opción A: Pagar en línea con Flow (Webpay, Débito, Crédito, Mach)</span>
-                <span class="block text-xs text-slate-500 mt-0.5">Confirmación automática inmediata. Tus números se reservan por <strong>10 minutos</strong>.</span>
+            <!-- Opción A: Flow.cl -->
+            <label id="card-method-flow" class="payment-card-active flex items-start p-3.5 rounded-2xl border-2 border-slate-200 cursor-pointer transition">
+              <input type="radio" name="payment_method" value="flow" checked onchange="updatePaymentMethodUI()" class="mt-1 text-sky-600 focus:ring-sky-500">
+              <div class="ml-3 w-full">
+                <div class="flex items-center justify-between flex-wrap gap-1">
+                  <span class="text-sm font-extrabold text-slate-900">Pago en Línea con Flow.cl</span>
+                  <span class="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-100 text-emerald-800 rounded-full uppercase">Confirmación Automática</span>
+                </div>
+                <span class="block text-xs text-slate-600 mt-1">Paga con <strong>Webpay Plus, Redcompra Débito, Crédito, MACH, Klap o Servipag</strong>. Tus números quedan pagados al instante.</span>
+                <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                  <span class="px-2 py-0.5 bg-white border border-slate-200 rounded text-[10px] font-bold text-slate-700">Webpay</span>
+                  <span class="px-2 py-0.5 bg-white border border-slate-200 rounded text-[10px] font-bold text-slate-700">Débito / Crédito</span>
+                  <span class="px-2 py-0.5 bg-white border border-slate-200 rounded text-[10px] font-bold text-slate-700">MACH</span>
+                  <span class="px-2 py-0.5 bg-white border border-slate-200 rounded text-[10px] font-bold text-slate-700">Onepay</span>
+                </div>
               </div>
             </label>
 
             <!-- Opción B: Transferencia -->
-            <label class="flex items-start p-3.5 rounded-2xl border-2 border-slate-200 hover:border-sky-500 cursor-pointer transition">
-              <input type="radio" name="payment_method" value="transfer" class="mt-1 text-sky-600 focus:ring-sky-500">
-              <div class="ml-3">
-                <span class="block text-sm font-bold text-slate-900">Opción B: Pagar por Transferencia Bancaria (CuentaRUT)</span>
-                <span class="block text-xs text-slate-500 mt-0.5">Tus números quedarán bloqueados por <strong>30 minutos</strong> mientras transfieres y envías el comprobante por WhatsApp.</span>
+            <label id="card-method-transfer" class="flex items-start p-3.5 rounded-2xl border-2 border-slate-200 cursor-pointer transition">
+              <input type="radio" name="payment_method" value="transfer" onchange="updatePaymentMethodUI()" class="mt-1 text-sky-600 focus:ring-sky-500">
+              <div class="ml-3 w-full">
+                <div class="flex items-center justify-between flex-wrap gap-1">
+                  <span class="text-sm font-extrabold text-slate-900">Transferencia Bancaria (CuentaRUT)</span>
+                  <span class="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded-full">Reserva por 30 min</span>
+                </div>
+                <span class="block text-xs text-slate-600 mt-1">Te mostraremos los datos de CuentaRUT BancoEstado y podrás enviar el comprobante por WhatsApp.</span>
               </div>
             </label>
           </div>
         </div>
 
+        <!-- MENSAJE DE ERROR DENTRO DEL MODAL -->
+        <div id="modal-error-box" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold"></div>
+
         <!-- BOTÓN SUBMIT -->
-        <button type="submit" id="btn-submit-order" class="w-full py-3.5 bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-extrabold text-sm rounded-xl shadow-lg shadow-sky-500/30 transition mt-2">
-          Confirmar y Reservar Números
+        <button type="submit" id="btn-submit-order" class="w-full py-3.5 bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-extrabold text-sm rounded-xl shadow-lg shadow-sky-500/30 transition flex items-center justify-center gap-2">
+          <span id="btn-submit-text">🔒 Ir a Pagar con Flow.cl</span>
         </button>
       </form>
     </div>
@@ -390,22 +538,19 @@
   <div id="transfer-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative max-h-[95vh] overflow-y-auto">
       
-      <!-- BADGE ESTADO Y TEMPORIZADOR REGRESIVO -->
       <div class="text-center pb-4 border-b border-slate-100">
         <span class="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-800 text-xs font-extrabold rounded-full mb-2">
-          PENDIENTE DE VALIDACIÓN
+          ⏳ RESERVA ACTIVA • PENDIENTE DE TRANSFERENCIA
         </span>
         <div id="transfer-timer" class="text-3xl font-extrabold text-amber-600 tracking-wider">30:00</div>
       </div>
 
-      <!-- AVISO DESTACADO -->
       <div class="mt-4 p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 leading-relaxed font-medium">
-        ⚠️ <strong>¡Importante!</strong> Tus números estarán bloqueados y reservados por <strong>30 minutos</strong>. Realiza la transferencia y envía el comprobante por WhatsApp antes de que venza el tiempo para que el administrador valide tu compra.
+        ⚠️ <strong>¡Importante!</strong> Tus números están bloqueados por <strong>30 minutos</strong>. Realiza la transferencia y envía el comprobante por WhatsApp para que el administrador valide tu compra.
       </div>
 
-      <!-- ORDEN & DETALLES -->
       <div class="mt-4 space-y-4">
-        <div class="flex justify-between items-center text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
+        <div class="flex justify-between items-center text-xs bg-slate-50 p-3.5 rounded-xl border border-slate-100">
           <div>
             <span class="text-slate-400 block">Orden</span>
             <span class="font-extrabold text-slate-800 text-sm" id="transfer-order-id">-</span>
@@ -414,7 +559,7 @@
             <span class="text-slate-400 block">Números</span>
             <span class="font-extrabold text-[#0284c7] text-sm" id="transfer-numbers">-</span>
           </div>
-          <div>
+          <div class="text-right">
             <span class="text-slate-400 block">Monto exacto</span>
             <span class="font-extrabold text-emerald-600 text-sm" id="transfer-total">-</span>
           </div>
@@ -448,12 +593,10 @@
           </div>
         </div>
 
-        <!-- BOTÓN COPIAR DATOS -->
         <button onclick="copyBankData()" id="btn-copy-bank" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center justify-center space-x-1.5">
-          <span>📋 Copiar todos los datos</span>
+          <span>📋 Copiar todos los datos bancarios</span>
         </button>
 
-        <!-- BOTÓN VERDE GRANDE ENVIAR WHATSAPP -->
         <a id="btn-whatsapp-transfer" href="#" target="_blank"
            class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center space-x-2">
           <span>💬 Enviar comprobante por WhatsApp</span>
@@ -472,34 +615,33 @@
     <div id="receipt-card" class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border-2 border-emerald-400 text-center">
       <button onclick="closeReceiptModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 font-bold">✕</button>
 
-      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl shadow-inner">
         ✓
       </div>
 
-      <span class="inline-block px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full mb-1">
-        PAGADO
+      <span class="inline-block px-3 py-1 bg-emerald-500 text-white text-xs font-extrabold rounded-full mb-1">
+        PAGO CONFIRMADO
       </span>
       <h3 class="text-xl font-extrabold text-slate-900">Comprobante Digital Oficial</h3>
       <p class="text-xs text-slate-500 mt-1">Rifa Solidaria a beneficio de Luis Henríquez</p>
 
-      <!-- NÚMEROS DESTACADOS -->
       <div class="my-5 p-4 bg-sky-50 rounded-2xl border-2 border-dashed border-sky-400">
-        <span class="text-xs font-bold text-sky-700 uppercase tracking-wider block">Números Asignados</span>
+        <span class="text-xs font-bold text-sky-700 uppercase tracking-wider block">Tus Números Oficiales</span>
         <div id="receipt-numbers" class="text-2xl font-extrabold text-sky-900 mt-1 tracking-wider">-</div>
       </div>
 
-      <div class="text-xs text-left space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+      <div class="text-xs text-left space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
         <div class="flex justify-between">
           <span class="text-slate-400">Folio de Orden:</span>
-          <span id="receipt-order-id" class="font-bold text-slate-800">-</span>
+          <span id="receipt-order-id" class="font-extrabold text-slate-800">-</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-400">Participante (Iniciales):</span>
+          <span class="text-slate-400">Participante:</span>
           <span id="receipt-buyer" class="font-bold text-slate-800">-</span>
         </div>
         <div class="flex justify-between">
           <span class="text-slate-400">Monto Pagado:</span>
-          <span id="receipt-total" class="font-bold text-emerald-600">-</span>
+          <span id="receipt-total" class="font-extrabold text-emerald-600">-</span>
         </div>
         <div class="flex justify-between">
           <span class="text-slate-400">Fecha:</span>
@@ -515,16 +657,21 @@
         📸 <strong>Listo para captura de pantalla.</strong> Guarda esta imagen como respaldo oficial de tu participación.
       </p>
 
-      <button onclick="window.print()" class="mt-4 w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
-        🖨️ Imprimir / Guardar Comprobante
-      </button>
+      <div class="grid grid-cols-2 gap-2.5 mt-4">
+        <button onclick="window.print()" class="py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
+          🖨️ Imprimir / PDF
+        </button>
+        <button onclick="closeReceiptModal()" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+          Listo
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- BOTÓN FLOTANTE DE WHATSAPP -->
   <a href="https://wa.me/{{ whatsapp_number }}?text=Hola,%20tengo%20una%20consulta%20sobre%20la%20rifa%20solidaria%20de%20Luis%20Henr%C3%ADquez"
      target="_blank" rel="noopener noreferrer"
-     class="fixed bottom-6 right-6 bg-emerald-500 hover:bg-emerald-600 text-white p-3.5 rounded-full shadow-2xl hover:scale-105 transition duration-200 z-30 flex items-center justify-center"
+     class="fixed bottom-20 sm:bottom-6 right-5 bg-emerald-500 hover:bg-emerald-600 text-white p-3.5 rounded-full shadow-2xl hover:scale-105 transition duration-200 z-30 flex items-center justify-center"
      title="¿Dudas? Escríbenos por WhatsApp">
     <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
       <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
@@ -535,7 +682,7 @@
   <footer class="bg-white border-t border-slate-200/80 py-6 text-center text-xs text-slate-500 mt-12">
     <div class="max-w-5xl mx-auto px-4 space-y-1.5">
       <p>Rifa Solidaria a beneficio de <strong>Luis Henríquez</strong> • Chile, 2026</p>
-      <p class="text-slate-400">Transparencia y respaldo garantizado • WhatsApp soporte: +{{ whatsapp_number }}</p>
+      <p class="text-slate-400">Pagos en línea procesados de forma segura por <strong>Flow.cl</strong> • WhatsApp soporte: +{{ whatsapp_number }}</p>
     </div>
   </footer>
 
@@ -552,6 +699,24 @@
     let selectedNumbers = new Set();
     let currentOrder = null;
     let timerInterval = null;
+    let currentFilter = "all";
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      const colors = {
+        success: "bg-emerald-600 text-white border-emerald-700",
+        warning: "bg-amber-500 text-white border-amber-600",
+        error: "bg-rose-600 text-white border-rose-700",
+        info: "bg-slate-900 text-white border-slate-800"
+      };
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-xl text-xs sm:text-sm font-bold flex items-center justify-between gap-3 transition-all duration-300 ${colors[type] || colors.info}`;
+      toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="opacity-75 hover:opacity-100 font-extrabold">✕</button>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentElement) toast.remove();
+      }, 4500);
+    }
 
     function toggleNumber(num) {
       if (selectedNumbers.has(num)) {
@@ -567,23 +732,73 @@
       updateUI();
     }
 
+    function pickRandomNumbers(amount) {
+      const availableBtns = Array.from(document.querySelectorAll("button[id^='ticket-cell-']"))
+        .map(btn => parseInt(btn.getAttribute("data-number")))
+        .filter(n => !selectedNumbers.has(n));
+
+      if (availableBtns.length === 0) {
+        showToast("Ya seleccionaste todos los números libres disponibles.", "warning");
+        return;
+      }
+
+      // Mezclar con Fisher-Yates
+      for (let i = availableBtns.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [availableBtns[i], availableBtns[j]] = [availableBtns[j], availableBtns[i]];
+      }
+
+      const chosen = availableBtns.slice(0, Math.min(amount, availableBtns.length));
+      chosen.forEach(n => selectedNumbers.add(n));
+      updateUI();
+      const chosenFormatted = chosen.sort((a, b) => a - b).map(n => `#${String(n).padStart(2, '0')}`).join(", ");
+      showToast(`🎲 Se agregaron al azar: ${chosenFormatted}`, "info");
+    }
+
+    function setGridFilter(filter) {
+      currentFilter = filter;
+      ["all", "available", "sold"].forEach(f => {
+        const btn = document.getElementById(`filter-btn-${f}`);
+        if (f === filter) {
+          btn.className = "px-2.5 py-1 rounded-lg font-bold bg-white text-slate-800 shadow-2xs transition";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 transition";
+        }
+      });
+      applyGridFilter();
+    }
+
+    function applyGridFilter() {
+      document.querySelectorAll("[id^='ticket-cell-']").forEach(el => {
+        const status = el.getAttribute("data-status");
+        if (currentFilter === "all") {
+          el.classList.remove("ticket-dimmed");
+        } else if (currentFilter === "available") {
+          el.classList.toggle("ticket-dimmed", status !== "available");
+        } else if (currentFilter === "sold") {
+          el.classList.toggle("ticket-dimmed", status !== "sold");
+        }
+      });
+    }
+
     function updateUI() {
       const count = selectedNumbers.size;
       const total = count * TICKET_PRICE;
       const numbersSorted = Array.from(selectedNumbers).sort((a, b) => a - b);
       const formattedList = numbersSorted.map(n => `#${String(n).padStart(2, '0')}`).join(", ");
 
-      // Actualizar botones en la grilla
       document.querySelectorAll("button[id^='ticket-cell-']").forEach(btn => {
         const num = parseInt(btn.getAttribute("data-number"));
+        const numFmt = String(num).padStart(2, '0');
         if (selectedNumbers.has(num)) {
           btn.classList.add("ticket-mine");
+          btn.innerHTML = `<span class="leading-none">${numFmt}</span><span class="text-[8px] font-extrabold uppercase leading-none mt-1 tracking-wider opacity-95">Tuyo</span>`;
         } else {
           btn.classList.remove("ticket-mine");
+          btn.innerHTML = `<span class="leading-none">${numFmt}</span>`;
         }
       });
 
-      // Actualizar pie de la tarjeta (estilo imagen de ejemplo)
       const footerSelection = document.getElementById("card-footer-selection");
       const footerRightText = document.getElementById("card-footer-right-text");
       const footerPayBtn = document.getElementById("card-footer-pay-btn");
@@ -603,11 +818,52 @@
         document.getElementById("bar-total").innerText = `$${total.toLocaleString('es-CL')} CLP`;
       } else {
         footerSelection.innerText = "Ningún número seleccionado";
-        footerRightText.innerText = "Haz clic en uno o más números libres para participar ($2.000 CLP c/u).";
+        footerRightText.innerText = `Haz clic en uno o más números libres para participar ($${TICKET_PRICE.toLocaleString('es-CL')} CLP c/u).`;
         footerRightText.className = "text-xs sm:text-sm text-[#64748b]";
         footerPayBtn.classList.add("hidden");
         btnClear.classList.add("hidden");
         checkoutBar.classList.add("translate-y-full");
+      }
+      updatePaymentMethodUI();
+    }
+
+    function updateInitialsPreview() {
+      const nameInput = document.getElementById("buyer_name").value.trim();
+      const previewEl = document.getElementById("initials-preview");
+      const ignore = new Set(["de", "del", "la", "las", "los", "y", "san", "santa"]);
+      const rawParts = nameInput.split(/\s+/).filter(Boolean);
+      const parts = rawParts.filter(p => !ignore.has(p.toLowerCase()));
+      const effective = parts.length > 0 ? parts : rawParts;
+      if (effective.length >= 2) {
+        const initials = `${effective[0][0].toUpperCase()}. ${effective[1][0].toUpperCase()}.`;
+        previewEl.innerText = `Tus iniciales en grilla: ${initials}`;
+        previewEl.classList.remove("hidden");
+      } else if (effective.length === 1) {
+        previewEl.innerText = `Agrega tu apellido`;
+        previewEl.classList.remove("hidden");
+      } else {
+        previewEl.classList.add("hidden");
+      }
+    }
+
+    function updatePaymentMethodUI() {
+      const selectedRadio = document.querySelector("input[name='payment_method']:checked");
+      if (!selectedRadio) return;
+      const method = selectedRadio.value;
+      const flowCard = document.getElementById("card-method-flow");
+      const transferCard = document.getElementById("card-method-transfer");
+      const btnText = document.getElementById("btn-submit-text");
+      const total = selectedNumbers.size * TICKET_PRICE;
+      const totalStr = total > 0 ? ` ($${total.toLocaleString('es-CL')} CLP)` : "";
+
+      if (method === "flow") {
+        flowCard.classList.add("payment-card-active");
+        transferCard.classList.remove("payment-card-active");
+        btnText.innerText = `🔒 Ir a Pagar con Flow.cl${totalStr}`;
+      } else {
+        transferCard.classList.add("payment-card-active");
+        flowCard.classList.remove("payment-card-active");
+        btnText.innerText = `🏦 Reservar y Ver Datos CuentaRUT${totalStr}`;
       }
     }
 
@@ -619,6 +875,8 @@
 
       document.getElementById("modal-numbers-summary").innerText = numbersSorted.map(n => `#${String(n).padStart(2, '0')}`).join(", ");
       document.getElementById("modal-total-summary").innerText = `$${total.toLocaleString('es-CL')} CLP`;
+      document.getElementById("modal-error-box").classList.add("hidden");
+      updatePaymentMethodUI();
       document.getElementById("checkout-modal").classList.remove("hidden");
     }
 
@@ -629,20 +887,26 @@
     async function submitOrder(e) {
       e.preventDefault();
       const btn = document.getElementById("btn-submit-order");
-      const buyerName = document.getElementById("buyer_name").value.trim();
+      const btnText = document.getElementById("btn-submit-text");
+      const errorBox = document.getElementById("modal-error-box");
+      errorBox.classList.add("hidden");
 
+      const buyerName = document.getElementById("buyer_name").value.trim();
       if (buyerName.split(/\s+/).filter(Boolean).length < 2) {
-        alert("Por favor ingresa tu Nombre y Apellido para generar tus iniciales.");
+        errorBox.innerText = "Por favor ingresa tu Nombre y Apellido para generar tus iniciales.";
+        errorBox.classList.remove("hidden");
         return;
       }
-
-      btn.disabled = true;
-      btn.innerText = "Reservando números...";
 
       const buyerPhone = document.getElementById("buyer_phone").value.trim();
       const buyerEmail = document.getElementById("buyer_email").value.trim();
       const paymentMethod = document.querySelector("input[name='payment_method']:checked").value;
       const numbers = Array.from(selectedNumbers).sort((a, b) => a - b);
+
+      btn.disabled = true;
+      btnText.innerText = paymentMethod === "flow"
+        ? "Conectando con Flow.cl seguro..."
+        : "Reservando tus números...";
 
       try {
         const response = await fetch("/api/orders", {
@@ -659,9 +923,10 @@
 
         const data = await response.json();
         if (!response.ok) {
-          alert(data.detail || "Error al procesar la reserva.");
+          errorBox.innerText = data.detail || "Error al procesar la reserva.";
+          errorBox.classList.remove("hidden");
           btn.disabled = false;
-          btn.innerText = "Confirmar y Reservar Números";
+          updatePaymentMethodUI();
           fetchGridData();
           return;
         }
@@ -674,17 +939,19 @@
 
         if (paymentMethod === "flow") {
           if (data.redirect_url) {
+            showToast("Redirigiendo a la pasarela segura de Flow.cl...", "info");
             window.location.href = data.redirect_url;
           }
         } else {
           showTransferModal(currentOrder, data.reserved_until);
         }
       } catch (err) {
-        alert("Ocurrió un error de conexión. Intenta nuevamente.");
+        errorBox.innerText = "Error de conexión. Por favor intenta nuevamente.";
+        errorBox.classList.remove("hidden");
         console.error(err);
       } finally {
         btn.disabled = false;
-        btn.innerText = "Confirmar y Reservar Números";
+        updatePaymentMethodUI();
       }
     }
 
@@ -700,7 +967,9 @@
       const msg = `Hola, acabo de reservar el/los número(s) ${numbersStr} a nombre de ${order.buyer_name} para la rifa solidaria de Luis Henríquez (Orden #${order.id}). Adjunto el comprobante de transferencia por $${order.total_amount.toLocaleString('es-CL')}.`;
       document.getElementById("btn-whatsapp-transfer").href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 
-      startCountdown(reservedUntilStr);
+      if (reservedUntilStr) {
+        startCountdown(reservedUntilStr);
+      }
       document.getElementById("transfer-modal").classList.remove("hidden");
     }
 
@@ -711,7 +980,6 @@
 
     function startCountdown(deadlineStr) {
       if (timerInterval) clearInterval(timerInterval);
-      // Asegurar interpretación UTC si no trae zona horaria
       const isoNormalized = deadlineStr.endsWith("Z") || deadlineStr.includes("+") ? deadlineStr : deadlineStr + "Z";
       const deadline = new Date(isoNormalized).getTime();
 
@@ -745,6 +1013,7 @@
         const btn = document.getElementById("btn-copy-bank");
         const oldHtml = btn.innerHTML;
         btn.innerHTML = "<span>✅ ¡Datos copiados al portapapeles!</span>";
+        showToast("Datos bancarios copiados al portapapeles", "success");
         setTimeout(() => { btn.innerHTML = oldHtml; }, 2500);
       });
     }
@@ -768,7 +1037,7 @@
       if (!q) return;
 
       const container = document.getElementById("search-results");
-      container.innerHTML = "<p class='text-xs text-slate-400'>Buscando...</p>";
+      container.innerHTML = "<p class='text-xs text-slate-400'>Verificando en tiempo real...</p>";
       container.classList.remove("hidden");
 
       try {
@@ -776,7 +1045,7 @@
         const data = await resp.json();
 
         if (!data.results || data.results.length === 0) {
-          container.innerHTML = "<p class='text-xs text-amber-800 bg-amber-50 p-3.5 rounded-xl border border-amber-200'>No encontramos reservas ni compras asociadas a ese correo o teléfono.</p>";
+          container.innerHTML = "<p class='text-xs text-amber-800 bg-amber-50 p-3.5 rounded-xl border border-amber-200'>No encontramos reservas ni compras asociadas a ese dato.</p>";
           return;
         }
 
@@ -784,33 +1053,33 @@
         data.results.forEach(order => {
           let badge = "";
           if (order.payment_status === "paid") {
-            badge = "<span class='px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800'>PAGADO</span>";
+            badge = "<span class='px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800'>✓ PAGADO</span>";
           } else if (order.payment_status === "pending") {
-            badge = "<span class='px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800'>PENDIENTE DE VALIDACIÓN</span>";
+            badge = "<span class='px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800'>⏳ PENDIENTE DE VALIDACIÓN</span>";
           } else {
-            badge = `<span class='px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600'>${order.payment_status.toUpperCase()}</span>`;
+            badge = "<span class='px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500'>EXPIRADO / LIBERADO</span>";
           }
 
           const nums = order.numbers_list.map(n => `#${String(n).padStart(2, '0')}`).join(", ");
-
           html += `
-            <div class="p-4 bg-[#f8fbfd] border border-[#dce8f0] rounded-2xl flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+            <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <div class="flex items-center space-x-2">
-                  <span class="font-extrabold text-slate-800 text-sm">Orden #${order.id}</span>
+                  <span class="font-extrabold text-sm text-slate-900">Orden #${order.id}</span>
                   ${badge}
                 </div>
-                <p class="text-xs text-slate-500 mt-1">Números: <strong class="text-[#0284c7]">${nums}</strong> • Monto: $${order.total_amount.toLocaleString('es-CL')} CLP</p>
+                <p class="text-xs text-slate-600 mt-1">Números: <strong class="text-[#0284c7]">${nums}</strong> • Monto: <strong>$${order.total_amount.toLocaleString('es-CL')} CLP</strong></p>
               </div>
               <div class="flex items-center space-x-2">
                 ${order.payment_status === 'paid' ? 
-                  `<button onclick='fetchAndShowReceipt("${order.id}")' class='text-xs bg-[#0ea5e9] text-white font-bold px-3.5 py-2 rounded-xl hover:bg-[#0284c7] transition'>Ver Comprobante</button>` 
+                  `<button onclick='fetchAndShowReceipt("${order.id}")' class='text-xs bg-[#0ea5e9] text-white font-bold px-4 py-2 rounded-xl hover:bg-[#0284c7] transition shadow-sm'>Ver Comprobante</button>` 
                   : ''}
               </div>
             </div>
           `;
         });
         container.innerHTML = html;
+        fetchGridData();
       } catch (e) {
         container.innerHTML = "<p class='text-xs text-rose-600'>Error al consultar tus números.</p>";
       }
@@ -822,11 +1091,11 @@
         const data = await resp.json();
         if (data.order) showReceiptModal(data.order);
       } catch (e) {
-        alert("No se pudo cargar el comprobante.");
+        showToast("No se pudo cargar el comprobante.", "error");
       }
     }
 
-    // Polling automático cada 10 segundos (actualiza estados libres, reservados y vendidos)
+    // Polling automático cada 10 segundos
     async function fetchGridData() {
       try {
         const resp = await fetch("/api/tickets");
@@ -837,6 +1106,10 @@
         document.getElementById("progress-pct").innerText = `${pctDisplay}%`;
         document.getElementById("progress-bar").style.width = `${data.sold_count > 0 ? Math.max(data.sold_percentage, 2) : 0}%`;
 
+        document.getElementById("stat-available").innerText = data.available_count;
+        document.getElementById("stat-reserved").innerText = data.reserved_count;
+        document.getElementById("stat-sold").innerText = data.sold_count;
+
         data.tickets.forEach(ticket => {
           const numFmt = String(ticket.number).padStart(2, '0');
           const currentEl = document.getElementById(`ticket-cell-${ticket.number}`);
@@ -845,34 +1118,39 @@
           if (ticket.status === "sold") {
             const div = document.createElement("div");
             div.id = `ticket-cell-${ticket.number}`;
-            div.className = "ticket-sold h-12 rounded-[10px] border flex flex-col items-center justify-center select-none px-1";
-            div.title = `Número vendido (${ticket.buyer_initials || 'Vendido'})`;
-            div.innerHTML = `<span class="text-[13px] sm:text-sm font-semibold line-through decoration-[#7c8ea0] decoration-[1.5px] leading-none">${numFmt}</span><span class="text-[9px] font-bold text-[#64748b] uppercase leading-none mt-1">${ticket.buyer_initials || 'Vendido'}</span>`;
+            div.setAttribute("data-status", "sold");
+            div.setAttribute("data-number", ticket.number);
+            div.className = "ticket-sold h-12 sm:h-[52px] rounded-[11px] border flex flex-col items-center justify-center select-none px-1";
+            div.title = `Número #${numFmt} vendido (${ticket.buyer_initials || 'Vendido'})`;
+            div.innerHTML = `<span class="text-[13px] sm:text-sm font-semibold line-through decoration-[#7c8ea0] decoration-[1.5px] leading-none">${numFmt}</span><span class="text-[9px] font-extrabold text-[#64748b] uppercase leading-none mt-1 tracking-tight">${ticket.buyer_initials || 'Vendido'}</span>`;
             currentEl.replaceWith(div);
             selectedNumbers.delete(ticket.number);
           } else if (ticket.status === "reserved") {
             const div = document.createElement("div");
             div.id = `ticket-cell-${ticket.number}`;
-            div.className = "ticket-reserved h-12 rounded-[10px] border flex flex-col items-center justify-center select-none px-1 animate-pulse-soft";
-            div.title = "En proceso de pago";
+            div.setAttribute("data-status", "reserved");
+            div.setAttribute("data-number", ticket.number);
+            div.className = "ticket-reserved h-12 sm:h-[52px] rounded-[11px] border flex flex-col items-center justify-center select-none px-1 animate-pulse-soft";
+            div.title = `Número #${numFmt} en proceso de pago`;
             div.innerHTML = `<span class="text-[13px] sm:text-sm font-semibold leading-none">${numFmt}</span><span class="text-[8px] font-bold text-amber-800 uppercase leading-none mt-1">Reserva</span>`;
             currentEl.replaceWith(div);
             selectedNumbers.delete(ticket.number);
           } else if (ticket.status === "available") {
-            // Si antes estaba reservado y se liberó, restaurar a botón clickeable
             if (currentEl.tagName !== "BUTTON") {
               const btn = document.createElement("button");
               btn.type = "button";
               btn.id = `ticket-cell-${ticket.number}`;
+              btn.setAttribute("data-status", "available");
               btn.setAttribute("data-number", ticket.number);
               btn.onclick = () => toggleNumber(ticket.number);
-              btn.className = "h-12 bg-white hover:border-[#0ea5e9] hover:text-[#0284c7] border border-[#dce5ec] text-[#0f172a] font-semibold text-[13px] sm:text-sm rounded-[10px] transition-all duration-150 flex flex-col items-center justify-center select-none focus:outline-none";
-              btn.innerHTML = `<span>${numFmt}</span>`;
+              btn.className = "ticket-btn h-12 sm:h-[52px] bg-white hover:border-[#0ea5e9] hover:text-[#0284c7] border border-[#dbe5ee] text-[#0f172a] font-bold text-[13px] sm:text-sm rounded-[11px] flex flex-col items-center justify-center select-none focus:outline-none";
+              btn.innerHTML = `<span class="leading-none">${numFmt}</span>`;
               currentEl.replaceWith(btn);
             }
           }
         });
 
+        applyGridFilter();
         updateUI();
       } catch (err) {
         console.error("Error actualizando grilla:", err);
@@ -886,9 +1164,12 @@
       const flowCancelled = urlParams.get("flow_cancelled");
 
       if (flowSuccess && orderId) {
+        showToast("🎉 ¡Pago confirmado exitosamente en Flow.cl!", "success");
         fetchAndShowReceipt(orderId);
+        window.history.replaceState({}, document.title, "/");
       } else if (flowCancelled) {
-        alert("El pago en Flow no se completó y los números han sido liberados.");
+        showToast("El pago en Flow no se completó. Puedes volver a elegir tus números.", "warning");
+        window.history.replaceState({}, document.title, "/");
       }
 
       setInterval(fetchGridData, 10000);

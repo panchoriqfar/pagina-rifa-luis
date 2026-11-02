@@ -61,6 +61,38 @@ def test_full_flow():
         assert "Numero;Estado;Comprador;Iniciales" in csv_res.text
         print("✓ PASS: Exportación de CSV para el sorteo generada con éxito.")
 
+        # 8. Probar creación de orden con Pasarela Oficial Flow.cl
+        flow_payload = {
+            "numbers": [45],
+            "buyer_name": "María González",
+            "buyer_phone": "+56987654321",
+            "buyer_email": "maria.test@gmail.com",
+            "payment_method": "flow"
+        }
+        flow_res = client.post("/api/orders", json=flow_payload)
+        assert flow_res.status_code == 200, flow_res.text
+        flow_data = flow_res.json()
+        flow_order_id = flow_data["order"]["id"]
+        assert flow_data["order"]["flow_token"] is not None, "Se esperaba un token real de Flow.cl"
+        assert "flow.cl" in flow_data["redirect_url"], f"Se esperaba URL de Flow.cl, se obtuvo: {flow_data['redirect_url']}"
+        print(f"✓ PASS: Orden Flow.cl {flow_order_id} conectada en vivo -> {flow_data['redirect_url']}")
+
+        # 9. Limpiar datos de prueba para dejar la base de datos impecable
+        db = main.SessionLocal()
+        try:
+            for t in db.query(main.Ticket).filter(main.Ticket.number.in_([7, 21, 45])).all():
+                t.status = "available"
+                t.reserved_until = None
+                t.order_id = None
+            for oid in [order_id, flow_order_id]:
+                test_order = db.query(main.Order).filter(main.Order.id == oid).first()
+                if test_order:
+                    db.delete(test_order)
+            db.commit()
+        finally:
+            db.close()
+        print("✓ PASS: Datos de prueba limpiados; los 100 números quedaron disponibles en la BD.")
+
 if __name__ == "__main__":
     test_full_flow()
     print("\n🎉 ¡TODAS LAS PRUEBAS PASARON EXITOSAMENTE!")

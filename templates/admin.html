@@ -134,8 +134,8 @@
     <section class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
         <div>
-          <h2 class="text-lg font-extrabold text-slate-900">Validación de Transferencias (CuentaRUT)</h2>
-          <p class="text-xs text-slate-500">Revisa comprobantes recibidos por WhatsApp y aprueba o libera las reservas.</p>
+          <h2 class="text-lg font-extrabold text-slate-900">Reservas y Pagos Pendientes (Transferencias y Flow.cl)</h2>
+          <p class="text-xs text-slate-500">Revisa comprobantes de CuentaRUT o sincroniza el estado en vivo con Flow.cl.</p>
         </div>
         <button onclick="window.location.reload()" class="text-xs text-sky-600 font-semibold hover:underline">
           🔄 Actualizar lista
@@ -151,7 +151,7 @@
               <th class="p-3">WhatsApp / Teléfono</th>
               <th class="p-3">Números</th>
               <th class="p-3">Monto</th>
-              <th class="p-3">Estado</th>
+              <th class="p-3">Medio / Estado</th>
               <th class="p-3 text-right">Acciones</th>
             </tr>
           </thead>
@@ -159,7 +159,7 @@
             {% set pending_orders = orders | selectattr('payment_status', 'equalto', 'pending') | list %}
             {% if pending_orders | length == 0 %}
               <tr>
-                <td colspan="7" class="p-4 text-center text-slate-400">No hay transferencias pendientes en este momento.</td>
+                <td colspan="7" class="p-4 text-center text-slate-400">No hay reservas pendientes en este momento.</td>
               </tr>
             {% else %}
               {% for order in pending_orders %}
@@ -183,14 +183,22 @@
                 <td class="p-3 font-extrabold text-slate-900">
                   ${{ "{:,.0f}".format(order.total_amount).replace(",", ".") }} CLP
                 </td>
-                <td class="p-3">
-                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                <td class="p-3 space-y-1">
+                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-extrabold uppercase {{ 'bg-sky-100 text-sky-800' if order.payment_method == 'flow' else 'bg-slate-100 text-slate-700' }}">
+                    {{ order.payment_method }}
+                  </span>
+                  <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
                     PENDIENTE
                   </span>
                 </td>
-                <td class="p-3 text-right space-x-2">
+                <td class="p-3 text-right space-x-1.5">
+                  {% if order.payment_method == 'flow' and order.flow_token %}
+                  <button onclick="syncFlowOrder('{{ order.id }}')" class="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg shadow-sm">
+                    🔄 Verificar Flow
+                  </button>
+                  {% endif %}
                   <button onclick="approveOrder('{{ order.id }}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow-sm">
-                    ✓ Aprobar Pago
+                    ✓ Aprobar
                   </button>
                   <button onclick="releaseOrder('{{ order.id }}')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg border border-rose-200">
                     ✕ Liberar
@@ -305,6 +313,21 @@
     async function logoutAdmin() {
       await fetch("/api/admin/logout", { method: "POST" });
       window.location.reload();
+    }
+
+    async function syncFlowOrder(orderId) {
+      try {
+        const resp = await fetch(`/api/admin/orders/${orderId}/sync-flow`, { method: "POST" });
+        const data = await resp.json();
+        if (resp.ok) {
+          alert(`Estado en Flow para orden ${orderId}: ${data.payment_status.toUpperCase()}`);
+          window.location.reload();
+        } else {
+          alert(data.detail || "No se pudo consultar Flow");
+        }
+      } catch (e) {
+        alert("Error de conexión con el servidor");
+      }
     }
 
     async function approveOrder(orderId) {

@@ -27,6 +27,7 @@ from schemas import (
 from services import (
     init_db_tickets,
     release_expired_tickets,
+    sync_flow_order_status,
     get_public_grid,
     create_order,
     confirm_order_paid,
@@ -104,8 +105,12 @@ def require_admin(request: Request):
     return True
 
 # ==========================================
-# VISTAS PÚBLICAS
+# VISTAS PÚBLICAS Y HEALTHCHECK (RENDER)
 # ==========================================
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "service": "rifa-solidaria-luis"}
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, db: Session = Depends(get_db)):
     grid = get_public_grid(db)
@@ -133,7 +138,12 @@ async def get_tickets(db: Session = Depends(get_db)):
 @app.post("/api/orders")
 async def create_new_order(order_data: OrderCreate, request: Request, db: Session = Depends(get_db)):
     """Crea una orden con reserva temporal (Flow 10m / Transferencia 30m)."""
-    base_url = str(request.base_url).rstrip("/")
+    forwarded_proto = request.headers.get("x-forwarded-proto")
+    forwarded_host = request.headers.get("x-forwarded-host") or request.headers.get("host")
+    if forwarded_proto and forwarded_host:
+        base_url = f"{forwarded_proto}://{forwarded_host}".rstrip("/")
+    else:
+        base_url = str(request.base_url).rstrip("/")
     result = create_order(db, order_data, base_url)
     return result
 
@@ -145,9 +155,14 @@ async def search_my_numbers(q: str, db: Session = Depends(get_db)):
     orders = db.query(Order).filter(
         or_(
             Order.buyer_email.ilike(f"%{clean_q}%"),
-            Order.buyer_phone.ilike(f"%{clean_q}%")
+            Order.buyer_phone.ilike(f"%{clean_q}%"),
+            Order.id.ilike(f"%{clean_q}%")
         )
     ).order_by(Order.created_at.desc()).all()
+
+    for o in orders:
+        if o.payment_method == "flow" and o.payment_status == "pending" and o.flow_token:
+            sync_flow_order_status(db, o)
 
     return {"results": [o.to_dict() for o in orders]}
 
@@ -158,6 +173,10 @@ async def get_order_status(order_id: str, db: Session = Depends(get_db)):
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
+
+    if order.payment_method == "flow" and order.payment_status == "pending" and order.flow_token:
+        sync_flow_order_status(db, order)
+        db.refresh(order)
 
     # Obtener el tiempo de reserva del ticket si sigue pendiente
     reserved_until = None
@@ -218,13 +237,18 @@ async def flow_webhook(request: Request, db: Session = Depends(get_db)):
         resp = requests.get(f"{FLOW_URL}/payment/getStatus", params=params, timeout=10)
         if resp.status_code == 200:
             status_data = resp.json()
-            # status == 2 significa Pagado en Flow
+            # status == 2 significa Pagado en Flow; 3 o 4 significa Rechazado / Anulado
             commerce_order = status_data.get("commerceOrder")
-            if status_data.get("status") == 2 and commerce_order:
+            flow_status = status_data.get("status")
+            if commerce_order:
                 order = db.query(Order).filter(Order.id == commerce_order).first()
                 if order:
-                    confirm_order_paid(db, order)
-                    return JSONResponse(content={"status": "OK"})
+                    if flow_status == 2:
+                        confirm_order_paid(db, order)
+                        return JSONResponse(content={"status": "OK"})
+                    elif flow_status in (3, 4):
+                        release_order_tickets(db, commerce_order)
+                        return JSONResponse(content={"status": "CANCELLED"})
     except Exception as e:
         print(f"[Flow Webhook Error]: {e}")
     return JSONResponse(content={"status": "RECEIVED"})
@@ -247,12 +271,15 @@ async def flow_return(request: Request, db: Session = Depends(get_db)):
             if resp.status_code == 200:
                 data = resp.json()
                 commerce_order = data.get("commerceOrder")
-                if data.get("status") == 2:
+                flow_status = data.get("status")
+                if flow_status == 2:
                     order = db.query(Order).filter(Order.id == commerce_order).first()
                     if order:
                         confirm_order_paid(db, order)
                         return RedirectResponse(url=f"/?order_id={commerce_order}&flow_success=1", status_code=303)
                 else:
+                    if commerce_order and flow_status in (3, 4):
+                        release_order_tickets(db, commerce_order)
                     return RedirectResponse(url=f"/?order_id={commerce_order}&flow_cancelled=1", status_code=303)
         except Exception as e:
             print(f"[Flow Return Error]: {e}")
@@ -362,6 +389,15 @@ async def admin_approve_order(order_id: str, request: Request, db: Session = Dep
 async def admin_release_order(order_id: str, request: Request, db: Session = Depends(get_db)):
     require_admin(request)
     return release_order_tickets(db, order_id)
+
+@app.post("/api/admin/orders/{order_id}/sync-flow")
+async def admin_sync_flow_order(order_id: str, request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Orden no encontrada")
+    new_status = sync_flow_order_status(db, order)
+    return {"success": True, "payment_status": new_status, "order_id": order.id}
 
 @app.post("/api/admin/manual-sale")
 async def admin_manual_sale(sale_data: ManualSaleCreate, request: Request, db: Session = Depends(get_db)):

@@ -20,7 +20,7 @@ TICKET_PRICE = int(os.getenv("TICKET_PRICE", 2000))
 TOTAL_TICKETS = int(os.getenv("TOTAL_TICKETS", 100))
 FLOW_API_KEY = os.getenv("FLOW_API_KEY", "").strip()
 FLOW_SECRET_KEY = os.getenv("FLOW_SECRET_KEY", "").strip()
-FLOW_URL = os.getenv("FLOW_URL", "https://sandbox.flow.cl/api").rstrip("/")
+FLOW_URL = os.getenv("FLOW_URL", "https://www.flow.cl/api").rstrip("/")
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "").strip()
 RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL", "Rifa Solidaria <onboarding@resend.dev>").strip()
 WHATSAPP_NUMBER = os.getenv("WHATSAPP_NUMBER", "56927178289").strip()
@@ -33,13 +33,15 @@ def generate_order_id() -> str:
     return f"R-{code}"
 
 def extract_initials(full_name: str) -> str:
-    """Extrae las iniciales del comprador, ej. Francisco Riquelme -> F. R."""
-    parts = [p.strip() for p in full_name.strip().split() if p.strip()]
+    """Extrae dinámicamente las iniciales reales de cada comprador según su nombre y apellido."""
+    ignore = {"de", "del", "la", "las", "los", "y", "san", "santa"}
+    raw_parts = [p.strip() for p in full_name.strip().split() if p.strip()]
+    parts = [p for p in raw_parts if p.lower() not in ignore] or raw_parts
     if not parts:
         return "?."
     if len(parts) == 1:
         return f"{parts[0][0].upper()}."
-    return f"{parts[0][0].upper()}. {parts[1][0].upper()}."
+    return f"{parts[0][0].upper()}. {parts[-1][0].upper() if len(parts) == 2 else parts[1][0].upper()}."
 
 def init_db_tickets(db: Session):
     """Crea los 100 números (1 al 100) si la base de datos está vacía."""
@@ -55,10 +57,39 @@ def init_db_tickets(db: Session):
             db.commit()
             print(f"[DB] Se inicializaron {len(new_tickets)} tickets en la base de datos.")
 
+def sync_flow_order_status(db: Session, order: Order) -> str:
+    """
+    Consulta directamente a Flow.cl el estado real de una orden con flow_token.
+    - status == 2 (Pagada): confirma el pago y asigna los tickets como vendidos.
+    - status in (3, 4) (Rechazada / Anulada): libera los tickets reservados de inmediato.
+    """
+    if not order or not order.flow_token or not FLOW_API_KEY or not FLOW_SECRET_KEY:
+        return order.payment_status if order else "unknown"
+    if order.payment_status == "paid":
+        return "paid"
+
+    try:
+        params = {"apiKey": FLOW_API_KEY, "token": order.flow_token}
+        params["s"] = sign_flow_params(params, FLOW_SECRET_KEY)
+        resp = requests.get(f"{FLOW_URL}/payment/getStatus", params=params, timeout=8)
+        if resp.status_code == 200:
+            data = resp.json()
+            flow_status = data.get("status")
+            if flow_status == 2:
+                confirm_order_paid(db, order)
+                return "paid"
+            elif flow_status in (3, 4):
+                release_order_tickets(db, order.id)
+                return "cancelled"
+    except Exception as e:
+        print(f"[Flow Sync Error] Orden {order.id}: {e}")
+
+    return order.payment_status
+
 def release_expired_tickets(db: Session) -> int:
     """
     Libera tickets cuyo tiempo de reserva ha expirado y marca órdenes pendientes como expired.
-    Ejecutado antes de listar la grilla o procesar pagos.
+    Antes de expirar una orden Flow con token activo, verifica en Flow si fue pagada.
     """
     now = datetime.datetime.utcnow()
     expired_tickets = db.query(Ticket).filter(
@@ -70,13 +101,8 @@ def release_expired_tickets(db: Session) -> int:
     if not expired_tickets:
         return 0
 
-    order_ids = set()
-    for t in expired_tickets:
-        if t.order_id:
-            order_ids.add(t.order_id)
-        t.status = "available"
-        t.reserved_until = None
-        t.order_id = None
+    order_ids = set(t.order_id for t in expired_tickets if t.order_id)
+    paid_order_ids = set()
 
     if order_ids:
         orders = db.query(Order).filter(
@@ -84,10 +110,24 @@ def release_expired_tickets(db: Session) -> int:
             Order.payment_status == "pending"
         ).all()
         for o in orders:
+            if o.payment_method == "flow" and o.flow_token:
+                new_status = sync_flow_order_status(db, o)
+                if new_status == "paid":
+                    paid_order_ids.add(o.id)
+                    continue
             o.payment_status = "expired"
 
+    released_count = 0
+    for t in expired_tickets:
+        if t.order_id in paid_order_ids:
+            continue
+        t.status = "available"
+        t.reserved_until = None
+        t.order_id = None
+        released_count += 1
+
     db.commit()
-    return len(expired_tickets)
+    return released_count
 
 def get_public_grid(db: Session):
     """Devuelve la lista pública de 100 números sin datos sensibles."""
@@ -194,18 +234,20 @@ def create_order(db: Session, order_data: OrderCreate, base_url: str) -> dict:
     # Procesar Flow si corresponde
     redirect_url = None
     if order_data.payment_method == "flow":
+        effective_base = "http://localhost:8000" if "testserver" in base_url else base_url
         if FLOW_API_KEY and FLOW_SECRET_KEY and FLOW_API_KEY.lower() != "mock":
             # Llamada real a Flow.cl
             try:
+                numbers_label = ", ".join(f"#{n:02d}" for n in requested_numbers)
                 flow_params = {
                     "apiKey": FLOW_API_KEY,
                     "commerceOrder": order.id,
-                    "subject": f"Rifa Solidaria Luis - Orden {order.id}",
+                    "subject": f"Rifa Solidaria Luis ({numbers_label}) - Orden {order.id}",
                     "currency": "CLP",
                     "amount": str(order.total_amount),
                     "email": order.buyer_email,
-                    "urlConfirmation": f"{base_url}/api/payments/flow/webhook",
-                    "urlReturn": f"{base_url}/api/payments/flow/return",
+                    "urlConfirmation": f"{effective_base}/api/payments/flow/webhook",
+                    "urlReturn": f"{effective_base}/api/payments/flow/return",
                 }
                 signature = sign_flow_params(flow_params, FLOW_SECRET_KEY)
                 flow_params["s"] = signature
@@ -215,10 +257,10 @@ def create_order(db: Session, order_data: OrderCreate, base_url: str) -> dict:
                     flow_data = resp.json()
                     order.flow_token = flow_data.get("token")
                     db.commit()
+                    db.refresh(order)
                     redirect_url = f"{flow_data.get('url')}?token={flow_data.get('token')}"
                 else:
                     print(f"[Flow Error] HTTP {resp.status_code}: {resp.text}")
-                    # Fallback al simulador si Flow rechaza por llaves no activas
                     redirect_url = f"{base_url}/flow-checkout-simulation?order_id={order.id}"
             except Exception as e:
                 print(f"[Flow Exception]: {e}")
