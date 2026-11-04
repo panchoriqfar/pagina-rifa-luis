@@ -181,92 +181,84 @@
           <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-xl bg-white border border-sky-100 flex items-center justify-center text-xl shadow-sm">🎁</div>
             <div>
-              <p class="text-[11px] text-[#0f4c75] font-extrabold uppercase tracking-wider">Premios al Azar</p>
+              <p class="text-[11px] text-[#0f4c75] font-extrabold uppercase tracking-wider">Premios</p>
               <p class="text-sm font-extrabold text-slate-900">Set GAMA Chía &amp; Tostador Ursus Trotter</p>
-              <p class="text-[11px] text-slate-500">Sorteados al azar con igual importancia</p>
+              <p class="text-[11px] text-slate-500">Premios oficiales de la rifa</p>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- PREMIOS REALES EN LA PARTE SUPERIOR (SIN JERARQUÍA 1ER/2DO PREMIO - SORTEO AL AZAR) -->
-    <section id="premios" class="bg-white rounded-[28px] p-6 sm:p-8 border border-[#dce8f2] raffle-card-glow space-y-5 scroll-mt-20">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-4">
-        <div>
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-800 text-[11px] font-extrabold uppercase tracking-wider mb-1.5">
-            <span>🎲 Sorteo 100% al Azar</span>
+    <!-- SECCIÓN DE PREMIOS EN LA PARTE SUPERIOR -->
+    <section id="premios" class="bg-white rounded-[28px] p-5 sm:p-7 border border-[#dce8f2] raffle-card-glow space-y-4 scroll-mt-20">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3.5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 text-white flex items-center justify-center text-lg shadow-sm shadow-sky-500/20 shrink-0">
+            🎁
           </div>
-          <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">🎁 Premios Oficiales de la Rifa</h3>
-          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Ambos premios tienen la misma importancia y se sortearán al azar entre todos los números participantes.</p>
+          <div>
+            <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Premios</h3>
+            <p class="text-xs text-slate-500">Premios oficiales de la Rifa Solidaria Luis Henríquez</p>
+          </div>
         </div>
-        <a href="#sorteo-grilla" class="self-start sm:self-center shrink-0 px-4 py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 font-extrabold text-xs rounded-xl border border-sky-200 transition">
+        <a href="#sorteo-grilla" class="self-start sm:self-center shrink-0 px-3.5 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 font-extrabold text-xs rounded-xl border border-sky-200 transition">
           Elegir números ↓
         </a>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <!-- Premio al Azar: Set GAMA Chía -->
-        <div class="group bg-gradient-to-b from-[#f8fbfe] to-white rounded-[22px] border border-[#dce8f2] hover:border-sky-300 p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-4">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-sky-600 text-white shadow-2xs">
-                ✨ Premio al Azar
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Premio: Set GAMA Chía -->
+        <div class="group bg-gradient-to-br from-[#f4f9fd] via-white to-[#edf6fc] rounded-2xl border border-[#d5e6f2] hover:border-sky-400 p-4 sm:p-5 shadow-2xs hover:shadow-md transition flex items-center gap-4 sm:gap-5">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center">
+            <img src="/static/premios/gama-chia.webp"
+                 alt="Alisador de Pelo Elegance Chía + Secador de Pelo Chía marca GAMA"
+                 class="w-full h-full object-contain drop-shadow-[0_6px_12px_rgba(15,23,42,0.14)] group-hover:scale-105 transition duration-300" />
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-sky-600 text-white">
+                🎁 Premio
               </span>
-              <span class="text-[11px] font-bold text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80">
+              <span class="text-[11px] font-bold text-sky-900 bg-sky-100/80 px-2 py-0.5 rounded-md border border-sky-200/70">
                 Marca GAMA
               </span>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-100 p-4 h-52 sm:h-60 flex items-center justify-center overflow-hidden mb-4 shadow-2xs">
-              <img src="/static/premios/gama-chia.webp"
-                   alt="Alisador de Pelo Elegance Chía + Secador de Pelo Chía marca GAMA"
-                   class="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-300" />
-            </div>
-
-            <h4 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+            <h4 class="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
               Alisador de Pelo Elegance Chía + Secador de Pelo Chía marca GAMA
             </h4>
-            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-              Set completo de cuidado capilar marca <strong>GAMA</strong> línea Chía (<em>Active Oil Technology</em>), compuesto por secador profesional y alisador Elegance Chía.
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Set completo de secador y alisador de pelo línea Chía (<em>Active Oil Technology</em>).
             </p>
-          </div>
-
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-sky-700 font-bold">
-            <span>🎯 Sorteado al azar entre los 100 números</span>
-            <span>Producto nuevo</span>
           </div>
         </div>
 
-        <!-- Premio al Azar: Tostador Ursus Trotter -->
-        <div class="group bg-gradient-to-b from-[#f8fbfe] to-white rounded-[22px] border border-[#dce8f2] hover:border-sky-300 p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-4">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-sky-600 text-white shadow-2xs">
-                ✨ Premio al Azar
+        <!-- Premio: Tostador Ursus Trotter -->
+        <div class="group bg-gradient-to-br from-[#f4f9fd] via-white to-[#edf6fc] rounded-2xl border border-[#d5e6f2] hover:border-sky-400 p-4 sm:p-5 shadow-2xs hover:shadow-md transition flex items-center gap-4 sm:gap-5">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center">
+            <img src="/static/premios/tostador-ursus-trotter.webp"
+                 alt="Tostador de pan marca Ursus Trotter"
+                 class="w-full h-full object-contain drop-shadow-[0_6px_12px_rgba(15,23,42,0.14)] group-hover:scale-105 transition duration-300" />
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-sky-600 text-white">
+                🎁 Premio
               </span>
-              <span class="text-[11px] font-bold text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80">
+              <span class="text-[11px] font-bold text-sky-900 bg-sky-100/80 px-2 py-0.5 rounded-md border border-sky-200/70">
                 Marca Ursus Trotter
               </span>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-100 p-4 h-52 sm:h-60 flex items-center justify-center overflow-hidden mb-4 shadow-2xs">
-              <img src="/static/premios/tostador-ursus-trotter.webp"
-                   alt="Tostador de pan marca Ursus Trotter"
-                   class="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-300" />
-            </div>
-
-            <h4 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+            <h4 class="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
               Tostador de Pan marca Ursus Trotter
             </h4>
-            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-              Tostador eléctrico de pan marca <strong>Ursus Trotter</strong> con terminación en acero inoxidable, selector de niveles de tostado y funciones integradas.
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Tostador eléctrico en acero inoxidable con selector de niveles de tostado y funciones integradas.
             </p>
-          </div>
-
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-sky-700 font-bold">
-            <span>🎯 Sorteado al azar entre los 100 números</span>
-            <span>Producto nuevo</span>
           </div>
         </div>
       </div>

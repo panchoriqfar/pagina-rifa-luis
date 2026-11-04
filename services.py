@@ -449,7 +449,7 @@ def send_receipt_email(order: Order):
         </div>
 
         <div class="prizes">
-          <strong>🎁 Premios Oficiales (Sorteo al Azar):</strong><br>
+          <strong>🎁 Premios:</strong><br>
           • Alisador de Pelo Elegance Chía + Secador de Pelo Chía marca GAMA.<br>
           • Tostador de pan marca Ursus Trotter.
         </div>
