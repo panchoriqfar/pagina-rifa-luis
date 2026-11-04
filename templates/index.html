@@ -179,12 +179,94 @@
           <div class="h-px bg-[#dceaf4]"></div>
 
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-sky-100 flex items-center justify-center text-xl shadow-sm">🏆</div>
+            <div class="w-10 h-10 rounded-xl bg-white border border-sky-100 flex items-center justify-center text-xl shadow-sm">🎁</div>
             <div>
-              <p class="text-[11px] text-[#0f4c75] font-extrabold uppercase tracking-wider">Premio Mayor</p>
-              <p class="text-sm font-extrabold text-slate-900">$100.000 CLP en Efectivo</p>
-              <p class="text-[11px] text-slate-500">+ 2 grandes premios adicionales</p>
+              <p class="text-[11px] text-[#0f4c75] font-extrabold uppercase tracking-wider">Premios al Azar</p>
+              <p class="text-sm font-extrabold text-slate-900">Set GAMA Chía &amp; Tostador Ursus Trotter</p>
+              <p class="text-[11px] text-slate-500">Sorteados al azar con igual importancia</p>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PREMIOS REALES EN LA PARTE SUPERIOR (SIN JERARQUÍA 1ER/2DO PREMIO - SORTEO AL AZAR) -->
+    <section id="premios" class="bg-white rounded-[28px] p-6 sm:p-8 border border-[#dce8f2] raffle-card-glow space-y-5 scroll-mt-20">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-4">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-800 text-[11px] font-extrabold uppercase tracking-wider mb-1.5">
+            <span>🎲 Sorteo 100% al Azar</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">🎁 Premios Oficiales de la Rifa</h3>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Ambos premios tienen la misma importancia y se sortearán al azar entre todos los números participantes.</p>
+        </div>
+        <a href="#sorteo-grilla" class="self-start sm:self-center shrink-0 px-4 py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 font-extrabold text-xs rounded-xl border border-sky-200 transition">
+          Elegir números ↓
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Premio al Azar: Set GAMA Chía -->
+        <div class="group bg-gradient-to-b from-[#f8fbfe] to-white rounded-[22px] border border-[#dce8f2] hover:border-sky-300 p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-sky-600 text-white shadow-2xs">
+                ✨ Premio al Azar
+              </span>
+              <span class="text-[11px] font-bold text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80">
+                Marca GAMA
+              </span>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-100 p-4 h-52 sm:h-60 flex items-center justify-center overflow-hidden mb-4 shadow-2xs">
+              <img src="/static/premios/gama-chia.webp"
+                   alt="Alisador de Pelo Elegance Chía + Secador de Pelo Chía marca GAMA"
+                   class="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+
+            <h4 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+              Alisador de Pelo Elegance Chía + Secador de Pelo Chía marca GAMA
+            </h4>
+            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+              Set completo de cuidado capilar marca <strong>GAMA</strong> línea Chía (<em>Active Oil Technology</em>), compuesto por secador profesional y alisador Elegance Chía.
+            </p>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-sky-700 font-bold">
+            <span>🎯 Sorteado al azar entre los 100 números</span>
+            <span>Producto nuevo</span>
+          </div>
+        </div>
+
+        <!-- Premio al Azar: Tostador Ursus Trotter -->
+        <div class="group bg-gradient-to-b from-[#f8fbfe] to-white rounded-[22px] border border-[#dce8f2] hover:border-sky-300 p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-sky-600 text-white shadow-2xs">
+                ✨ Premio al Azar
+              </span>
+              <span class="text-[11px] font-bold text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80">
+                Marca Ursus Trotter
+              </span>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-100 p-4 h-52 sm:h-60 flex items-center justify-center overflow-hidden mb-4 shadow-2xs">
+              <img src="/static/premios/tostador-ursus-trotter.webp"
+                   alt="Tostador de pan marca Ursus Trotter"
+                   class="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+
+            <h4 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+              Tostador de Pan marca Ursus Trotter
+            </h4>
+            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+              Tostador eléctrico de pan marca <strong>Ursus Trotter</strong> con terminación en acero inoxidable, selector de niveles de tostado y funciones integradas.
+            </p>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-sky-700 font-bold">
+            <span>🎯 Sorteado al azar entre los 100 números</span>
+            <span>Producto nuevo</span>
           </div>
         </div>
       </div>
@@ -350,37 +432,6 @@
         <div>
           <h4 class="font-bold text-slate-900 text-sm">Recibe tu comprobante</h4>
           <p class="text-xs text-slate-500 mt-0.5">Tus iniciales aparecerán en los números vendidos y podrás descargar tu comprobante oficial.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- PREMIOS -->
-    <section id="premios" class="space-y-4 scroll-mt-20">
-      <div>
-        <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">🏆 Premios Oficiales de la Rifa</h3>
-        <p class="text-xs sm:text-sm text-slate-500">3 premios principales sorteados en vivo entre los 100 números</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- 1er Premio -->
-        <div class="bg-gradient-to-br from-amber-50/70 via-white to-white p-6 rounded-[22px] border-2 border-amber-300/80 shadow-sm relative overflow-hidden">
-          <span class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500 text-white mb-3 shadow-2xs">🥇 1er Premio Mayor</span>
-          <h4 class="text-2xl font-extrabold text-slate-900">$100.000 CLP</h4>
-          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">En efectivo mediante transferencia bancaria inmediata al ganador o ganadora.</p>
-        </div>
-
-        <!-- 2do Premio -->
-        <div class="bg-white p-6 rounded-[22px] border border-[#dce8f2] shadow-sm relative overflow-hidden">
-          <span class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-sky-600 text-white mb-3">🥈 2do Premio</span>
-          <h4 class="text-xl font-extrabold text-slate-900">Canasta Familiar + Cena</h4>
-          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Canasta familiar premium completa + Cena especial para dos personas.</p>
-        </div>
-
-        <!-- 3er Premio -->
-        <div class="bg-white p-6 rounded-[22px] border border-[#dce8f2] shadow-sm relative overflow-hidden">
-          <span class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-600 text-white mb-3">🥉 3er Premio</span>
-          <h4 class="text-xl font-extrabold text-slate-900">Audífonos + Sorpresa</h4>
-          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Audífonos inalámbricos Bluetooth de alta fidelidad + Premio sorpresa adicional.</p>
         </div>
       </div>
     </section>

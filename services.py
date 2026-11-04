@@ -449,10 +449,9 @@ def send_receipt_email(order: Order):
         </div>
 
         <div class="prizes">
-          <strong>🏆 Premios en juego:</strong><br>
-          • 1er Premio: $100.000 CLP en efectivo.<br>
-          • 2do Premio: Canasta familiar premium + Cena para dos personas.<br>
-          • 3er Premio: Audífonos inalámbricos Bluetooth + Premio sorpresa.
+          <strong>🎁 Premios Oficiales (Sorteo al Azar):</strong><br>
+          • Alisador de Pelo Elegance Chía + Secador de Pelo Chía marca GAMA.<br>
+          • Tostador de pan marca Ursus Trotter.
         </div>
 
         <div class="footer">
