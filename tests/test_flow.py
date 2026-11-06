@@ -6,21 +6,23 @@ def test_full_flow():
         # 0. Verificar vistas HTML principales (/ y /admin)
         home_res = client.get("/")
         assert home_res.status_code == 200, home_res.text
+        assert "Premios Sorpresa" in home_res.text
+        assert "Hacer donación de premio" in home_res.text
         admin_res = client.get("/admin")
         assert admin_res.status_code == 200, admin_res.text
-        print("✓ PASS: Vistas HTML / y /admin renderizadas correctamente.")
+        print("✓ PASS: Vistas HTML / y /admin renderizadas correctamente (incluyendo Premios Sorpresa y Donación de premio).")
 
         # 1. Verificar tickets inicializados
         res = client.get("/api/tickets")
         assert res.status_code == 200, res.text
         data = res.json()
-        assert data["total_tickets"] == 100, f"Expected 100 tickets, got {data['total_tickets']}"
-        assert len(data["tickets"]) == 100
-        print("✓ PASS: 100 tickets inicializados correctamente.")
+        assert data["total_tickets"] == 150, f"Expected 150 tickets, got {data['total_tickets']}"
+        assert len(data["tickets"]) == 150
+        print("✓ PASS: 150 tickets inicializados correctamente.")
 
-        # 2. Crear reserva con Transferencia
+        # 2. Crear reserva con Transferencia (incluyendo número 150)
         payload = {
-            "numbers": [7, 21],
+            "numbers": [7, 150],
             "buyer_name": "Francisco Riquelme",
             "buyer_phone": "+56912345678",
             "buyer_email": "test@example.com",
@@ -87,7 +89,7 @@ def test_full_flow():
         # 9. Limpiar datos de prueba para dejar la base de datos impecable
         db = main.SessionLocal()
         try:
-            for t in db.query(main.Ticket).filter(main.Ticket.number.in_([7, 21, 45])).all():
+            for t in db.query(main.Ticket).filter(main.Ticket.number.in_([7, 21, 45, 150])).all():
                 t.status = "available"
                 t.reserved_until = None
                 t.order_id = None
@@ -98,7 +100,7 @@ def test_full_flow():
             db.commit()
         finally:
             db.close()
-        print("✓ PASS: Datos de prueba limpiados; los 100 números quedaron disponibles en la BD.")
+        print("✓ PASS: Datos de prueba limpiados; los 150 números quedaron disponibles en la BD.")
 
 if __name__ == "__main__":
     test_full_flow()

@@ -35,6 +35,6 @@ services:
       - key: TICKET_PRICE
         value: "2000"
       - key: TOTAL_TICKETS
-        value: "100"
+        value: "150"
       - key: DRAW_DATE
         value: "10 de diciembre de 2026"

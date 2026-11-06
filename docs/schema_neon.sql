@@ -27,18 +27,22 @@ CREATE INDEX IF NOT EXISTS ix_orders_buyer_phone ON orders (buyer_phone);
 
 -- 2. Crear tabla de Números / Tickets (tickets)
 CREATE TABLE IF NOT EXISTS tickets (
-    number INTEGER PRIMARY KEY CHECK (number >= 1 AND number <= 100),
+    number INTEGER PRIMARY KEY CHECK (number >= 1 AND number <= 150),
     status VARCHAR(20) NOT NULL DEFAULT 'available',
     reserved_until TIMESTAMP WITHOUT TIME ZONE,
     order_id VARCHAR(36) REFERENCES orders(id) ON DELETE SET NULL
 );
 
+-- Si la tabla ya existía con límite 100, actualizar restricción a 150:
+ALTER TABLE tickets DROP CONSTRAINT IF EXISTS tickets_number_check;
+ALTER TABLE tickets ADD CONSTRAINT tickets_number_check CHECK (number >= 1 AND number <= 150);
+
 -- Índices para grilla y limpieza de reservas expiradas
 CREATE INDEX IF NOT EXISTS ix_tickets_number ON tickets (number);
 CREATE INDEX IF NOT EXISTS ix_tickets_status_reserved ON tickets (status, reserved_until);
 
--- 3. Poblar automáticamente los 100 números (del 1 al 100) como disponibles
+-- 3. Poblar automáticamente los 150 números (del 1 al 150) como disponibles
 INSERT INTO tickets (number, status, reserved_until, order_id)
 SELECT gs.num, 'available', NULL, NULL
-FROM generate_series(1, 100) AS gs(num)
+FROM generate_series(1, 150) AS gs(num)
 ON CONFLICT (number) DO NOTHING;

@@ -56,7 +56,7 @@ APP_URL = os.getenv("APP_URL", "http://localhost:8000").rstrip("/")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Inicialización de tablas y tickets 1-100
+    # Inicialización de tablas y tickets 1-150
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
@@ -301,6 +301,7 @@ async def flow_return(request: Request, db: Session = Depends(get_db)):
 async def admin_page(request: Request, db: Session = Depends(get_db)):
     """Panel de administración protegido por contraseña."""
     is_authenticated = verify_admin(request)
+    init_db_tickets(db)
     release_expired_tickets(db)
 
     metrics = None
@@ -418,7 +419,7 @@ async def admin_manual_sale(sale_data: ManualSaleCreate, request: Request, db: S
 
 @app.get("/api/admin/export-csv")
 async def export_tickets_csv(request: Request, db: Session = Depends(get_db)):
-    """Exporta los 100 números a un archivo CSV listo para el sorteo."""
+    """Exporta los 150 números a un archivo CSV listo para el sorteo."""
     require_admin(request)
     release_expired_tickets(db)
 

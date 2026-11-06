@@ -252,11 +252,11 @@
       </form>
     </section>
 
-    <!-- TABLA MAESTRA DE LOS 100 NÚMEROS -->
+    <!-- TABLA MAESTRA DE LOS 150 NÚMEROS -->
     <section class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
         <div>
-          <h2 class="text-lg font-extrabold text-slate-900">Tabla Maestra de los 100 Números (1 al 100)</h2>
+          <h2 class="text-lg font-extrabold text-slate-900">Tabla Maestra de los {{ metrics.total_tickets }} Números (1 al {{ metrics.total_tickets }})</h2>
           <p class="text-xs text-slate-500">Listado confidencial completo para la transmisión oficial del sorteo.</p>
         </div>
 
@@ -374,10 +374,10 @@
       // Convertir "1, 2, 3" a array de int
       const numbers = numbersRaw.split(",")
         .map(n => parseInt(n.trim()))
-        .filter(n => !isNaN(n) && n >= 1 && n <= 100);
+        .filter(n => !isNaN(n) && n >= 1 && n <= 150);
 
       if (numbers.length === 0) {
-        alert("Por favor ingresa al menos un número válido entre 1 y 100.");
+        alert("Por favor ingresa al menos un número válido entre 1 y 150.");
         return;
       }
 

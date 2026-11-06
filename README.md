@@ -6,7 +6,7 @@ Aplicación web completa, moderna y lista para producción diseñada para la rec
 
 ## 🌟 Características Principales
 
-1. **Gestión de 100 Números (01 al 100):**
+1. **Gestión de 150 Números (01 al 150):**
    - Grilla interactiva responsiva (10 columnas en PC, 5 en móviles).
    - Estados en tiempo real: `Libre`, `Tuyo`, `Reservado` y `Vendido`.
    - **Privacidad estricta:** La grilla pública solo muestra las iniciales del comprador (ej: `F. R.`). Nunca expone correo, teléfono ni nombre completo.
@@ -27,7 +27,7 @@ Aplicación web completa, moderna y lista para producción diseñada para la rec
    - Validación de transferencias con enlaces directos a WhatsApp de cada comprador.
    - Aprobación de pago con 1 clic (marca vendido y dispara el comprobante).
    - Venta manual directa (para registrar pagos en efectivo o por WhatsApp).
-   - Tabla maestra de los 100 números con buscador.
+   - Tabla maestra de los 150 números con buscador.
    - **Exportación a CSV / Excel** para la tómbola del sorteo en vivo.
 
 5. **Correos Transaccionales con Resend:**
@@ -109,10 +109,11 @@ uvicorn main:app --reload --port 8000
 
 ## 📋 Reglas del Sorteo
 
-- **Valor por número:** $2.000 CLP.
+- **Valor por número:** $2.000 CLP (150 números disponibles).
 - **Fecha del sorteo:** **10 de diciembre de 2026** o al vender el 100% de los números.
-- **Premios:**
-  1. **1er Lugar:** $100.000 CLP en efectivo.
-  2. **2do Lugar:** Canasta familiar premium + Cena para dos personas.
-  3. **3er Lugar:** Audífonos inalámbricos Bluetooth + Premio sorpresa.
+- **Premios (sorteados al azar):**
+  - **Alisador de Pelo Elegance Chía + Secador de Pelo Chía marca GAMA.**
+  - **Tostador de Pan marca Ursus Trotter.**
+  - **Premios Sorpresa adicionales.**
+- **Donación de premios:** Botón directo a WhatsApp debajo de la sección de premios.
 - **WhatsApp de soporte:** `+56927178289`.

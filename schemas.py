@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 
 class OrderCreate(BaseModel):
-    numbers: List[int] = Field(..., min_length=1, max_length=100)
+    numbers: List[int] = Field(..., min_length=1, max_length=150)
     buyer_name: str = Field(..., min_length=3, max_length=120)
     buyer_phone: str = Field(..., min_length=8, max_length=25)
     buyer_email: str = Field(..., min_length=5, max_length=120)
@@ -24,8 +24,8 @@ class OrderCreate(BaseModel):
             raise ValueError("Debes seleccionar al menos un número.")
         unique_numbers = sorted(list(set(v)))
         for num in unique_numbers:
-            if num < 1 or num > 100:
-                raise ValueError(f"El número {num} está fuera de rango (1-100).")
+            if num < 1 or num > 150:
+                raise ValueError(f"El número {num} está fuera de rango (1-150).")
         return unique_numbers
 
     @field_validator("buyer_name")
@@ -45,7 +45,7 @@ class OrderCreate(BaseModel):
         return cleaned
 
 class ManualSaleCreate(BaseModel):
-    numbers: List[int] = Field(..., min_length=1, max_length=100)
+    numbers: List[int] = Field(..., min_length=1, max_length=150)
     buyer_name: str = Field(..., min_length=3, max_length=120)
     buyer_phone: str = Field(..., min_length=8, max_length=25)
     buyer_email: Optional[str] = None
@@ -57,8 +57,8 @@ class ManualSaleCreate(BaseModel):
             raise ValueError("Debes seleccionar al menos un número.")
         unique_numbers = sorted(list(set(v)))
         for num in unique_numbers:
-            if num < 1 or num > 100:
-                raise ValueError(f"El número {num} está fuera de rango (1-100).")
+            if num < 1 or num > 150:
+                raise ValueError(f"El número {num} está fuera de rango (1-150).")
         return unique_numbers
 
     @field_validator("buyer_name")

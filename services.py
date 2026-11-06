@@ -7,7 +7,7 @@ import datetime
 import requests
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
-from sqlalchemy import select, or_, func
+from sqlalchemy import select, or_, func, text
 from fastapi import HTTPException, status
 from dotenv import load_dotenv
 
@@ -17,7 +17,7 @@ from schemas import OrderCreate, ManualSaleCreate
 load_dotenv()
 
 TICKET_PRICE = int(os.getenv("TICKET_PRICE", 2000))
-TOTAL_TICKETS = int(os.getenv("TOTAL_TICKETS", 100))
+TOTAL_TICKETS = int(os.getenv("TOTAL_TICKETS", 150))
 FLOW_API_KEY = os.getenv("FLOW_API_KEY", "").strip()
 FLOW_SECRET_KEY = os.getenv("FLOW_SECRET_KEY", "").strip()
 FLOW_URL = os.getenv("FLOW_URL", "https://www.flow.cl/api").rstrip("/")
@@ -44,9 +44,17 @@ def extract_initials(full_name: str) -> str:
     return f"{parts[0][0].upper()}. {parts[-1][0].upper() if len(parts) == 2 else parts[1][0].upper()}."
 
 def init_db_tickets(db: Session):
-    """Crea los 100 números (1 al 100) si la base de datos está vacía."""
+    """Crea los 150 números (1 al 150) si la base de datos está vacía o incompleta."""
     count = db.query(Ticket).count()
     if count < TOTAL_TICKETS:
+        if db.bind is not None and db.bind.dialect.name == "postgresql":
+            try:
+                db.execute(text("ALTER TABLE tickets DROP CONSTRAINT IF EXISTS tickets_number_check"))
+                db.execute(text(f"ALTER TABLE tickets ADD CONSTRAINT tickets_number_check CHECK (number >= 1 AND number <= {TOTAL_TICKETS})"))
+                db.commit()
+            except Exception as e:
+                db.rollback()
+                print(f"[DB Constraint Update Warning]: {e}")
         existing_numbers = set(row[0] for row in db.query(Ticket.number).all())
         new_tickets = []
         for n in range(1, TOTAL_TICKETS + 1):
@@ -130,7 +138,8 @@ def release_expired_tickets(db: Session) -> int:
     return released_count
 
 def get_public_grid(db: Session):
-    """Devuelve la lista pública de 100 números sin datos sensibles."""
+    """Devuelve la lista pública de 150 números sin datos sensibles."""
+    init_db_tickets(db)
     release_expired_tickets(db)
     tickets = db.query(Ticket).order_by(Ticket.number.asc()).all()
     
@@ -451,7 +460,8 @@ def send_receipt_email(order: Order):
         <div class="prizes">
           <strong>🎁 Premios:</strong><br>
           • Alisador de Pelo Elegance Chía + Secador de Pelo Chía marca GAMA.<br>
-          • Tostador de pan marca Ursus Trotter.
+          • Tostador de pan marca Ursus Trotter.<br>
+          • Premios Sorpresa adicionales.
         </div>
 
         <div class="footer">
