@@ -17,7 +17,7 @@ from schemas import OrderCreate, ManualSaleCreate
 load_dotenv()
 
 TICKET_PRICE = int(os.getenv("TICKET_PRICE", 2000))
-TOTAL_TICKETS = int(os.getenv("TOTAL_TICKETS", 150))
+TOTAL_TICKETS = max(int(os.getenv("TOTAL_TICKETS", 150)), 150)
 FLOW_API_KEY = os.getenv("FLOW_API_KEY", "").strip()
 FLOW_SECRET_KEY = os.getenv("FLOW_SECRET_KEY", "").strip()
 FLOW_URL = os.getenv("FLOW_URL", "https://www.flow.cl/api").rstrip("/")
