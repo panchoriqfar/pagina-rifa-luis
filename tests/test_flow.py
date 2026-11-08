@@ -1,3 +1,6 @@
+import os
+os.environ["DATABASE_URL"] = "sqlite:///./test_rifa_temp.db"
+
 from fastapi.testclient import TestClient
 import main
 
@@ -100,6 +103,12 @@ def test_full_flow():
             db.commit()
         finally:
             db.close()
+            main.engine.dispose()
+            if os.path.exists("./test_rifa_temp.db"):
+                try:
+                    os.remove("./test_rifa_temp.db")
+                except Exception:
+                    pass
         print("✓ PASS: Datos de prueba limpiados; los 150 números quedaron disponibles en la BD.")
 
 if __name__ == "__main__":

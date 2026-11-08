@@ -195,11 +195,13 @@ async def get_order_status(order_id: str, db: Session = Depends(get_db)):
     }
 
 # ==========================================
-# FLUJO DE PAGO FLOW.CL + MOCK
+# FLUJO DE PAGO FLOW.CL + MOCK (SOLO SI FLOW_API_KEY == 'mock')
 # ==========================================
 @app.get("/flow-checkout-simulation", response_class=HTMLResponse)
 async def flow_simulation(request: Request, order_id: str, db: Session = Depends(get_db)):
-    """Pantalla simulada de Flow para pruebas locales y desarrollo."""
+    """Pantalla simulada de Flow deshabilitada en producción."""
+    if FLOW_API_KEY.lower() != "mock":
+        raise HTTPException(status_code=403, detail="El simulador de pagos está deshabilitado en producción.")
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
@@ -215,7 +217,9 @@ async def flow_simulation(request: Request, order_id: str, db: Session = Depends
 
 @app.post("/api/mock-flow/confirm")
 async def mock_flow_confirm(order_id: str = Form(...), action: str = Form(...), db: Session = Depends(get_db)):
-    """Procesa el resultado del simulador de Flow."""
+    """Procesa el resultado del simulador de Flow (solo permitido en modo mock)."""
+    if FLOW_API_KEY.lower() != "mock":
+        raise HTTPException(status_code=403, detail="El simulador de pagos está deshabilitado en producción.")
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")

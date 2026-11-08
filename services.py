@@ -244,7 +244,9 @@ def create_order(db: Session, order_data: OrderCreate, base_url: str) -> dict:
     redirect_url = None
     if order_data.payment_method == "flow":
         effective_base = "http://localhost:8000" if "testserver" in base_url else base_url
-        if FLOW_API_KEY and FLOW_SECRET_KEY and FLOW_API_KEY.lower() != "mock":
+        if FLOW_API_KEY.lower() == "mock":
+            redirect_url = f"{base_url}/flow-checkout-simulation?order_id={order.id}"
+        elif FLOW_API_KEY and FLOW_SECRET_KEY:
             # Llamada real a Flow.cl
             try:
                 numbers_label = ", ".join(f"#{n:02d}" for n in requested_numbers)
@@ -254,7 +256,7 @@ def create_order(db: Session, order_data: OrderCreate, base_url: str) -> dict:
                     "subject": f"Rifa Solidaria Luis ({numbers_label}) - Orden {order.id}",
                     "currency": "CLP",
                     "amount": str(order.total_amount),
-                    "email": order.buyer_email,
+                    "email": order.buyer_email.strip(),
                     "urlConfirmation": f"{effective_base}/api/payments/flow/webhook",
                     "urlReturn": f"{effective_base}/api/payments/flow/return",
                 }
@@ -264,19 +266,57 @@ def create_order(db: Session, order_data: OrderCreate, base_url: str) -> dict:
                 resp = requests.post(f"{FLOW_URL}/payment/create", data=flow_params, timeout=12)
                 if resp.status_code == 200:
                     flow_data = resp.json()
-                    order.flow_token = flow_data.get("token")
+                    token = flow_data.get("token")
+                    flow_pay_url = flow_data.get("url")
+                    if not token or not flow_pay_url:
+                        raise ValueError("Respuesta incompleta desde Flow.cl")
+                    order.flow_token = token
                     db.commit()
                     db.refresh(order)
-                    redirect_url = f"{flow_data.get('url')}?token={flow_data.get('token')}"
+                    redirect_url = f"{flow_pay_url}?token={token}"
                 else:
                     print(f"[Flow Error] HTTP {resp.status_code}: {resp.text}")
-                    redirect_url = f"{base_url}/flow-checkout-simulation?order_id={order.id}"
+                    # Revertir reserva y orden para no dejar números bloqueados ni caer en simulador
+                    for t in locked_tickets:
+                        t.status = "available"
+                        t.reserved_until = None
+                        t.order_id = None
+                    db.delete(order)
+                    db.commit()
+
+                    err_msg = "No se pudo iniciar el pago en Flow.cl. Por favor verifica tus datos o intenta con Transferencia Bancaria."
+                    try:
+                        err_json = resp.json()
+                        if err_json.get("code") == 1620 or "email" in str(err_json.get("message", "")).lower():
+                            err_msg = "El correo electrónico ingresado no es válido o su dominio no existe. Por favor ingresa un correo real (ej. Gmail, Outlook, Hotmail, iCloud) para pagar con Flow.cl."
+                    except Exception:
+                        pass
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=err_msg)
+            except HTTPException:
+                raise
             except Exception as e:
                 print(f"[Flow Exception]: {e}")
-                redirect_url = f"{base_url}/flow-checkout-simulation?order_id={order.id}"
+                for t in locked_tickets:
+                    t.status = "available"
+                    t.reserved_until = None
+                    t.order_id = None
+                db.delete(order)
+                db.commit()
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail="Error de conexión con Flow.cl. Por favor intenta nuevamente en unos segundos o elige Transferencia Bancaria."
+                )
         else:
-            # Modo Simulación integrado
-            redirect_url = f"{base_url}/flow-checkout-simulation?order_id={order.id}"
+            for t in locked_tickets:
+                t.status = "available"
+                t.reserved_until = None
+                t.order_id = None
+            db.delete(order)
+            db.commit()
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="La pasarela Flow.cl no está disponible en este momento. Por favor utiliza Transferencia Bancaria."
+            )
 
     return {
         "order": order.to_dict(),

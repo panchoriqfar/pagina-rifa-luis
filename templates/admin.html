@@ -192,14 +192,15 @@
                   </span>
                 </td>
                 <td class="p-3 text-right space-x-1.5">
-                  {% if order.payment_method == 'flow' and order.flow_token %}
-                  <button onclick="syncFlowOrder('{{ order.id }}')" class="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg shadow-sm">
-                    🔄 Verificar Flow
+                  {% if order.payment_method == 'flow' %}
+                  <button onclick="syncFlowOrder('{{ order.id }}')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg shadow-sm">
+                    🔄 Verificar en Flow
+                  </button>
+                  {% else %}
+                  <button onclick="approveOrder('{{ order.id }}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow-sm">
+                    ✓ Aprobar Transferencia
                   </button>
                   {% endif %}
-                  <button onclick="approveOrder('{{ order.id }}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow-sm">
-                    ✓ Aprobar
-                  </button>
                   <button onclick="releaseOrder('{{ order.id }}')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg border border-rose-200">
                     ✕ Liberar
                   </button>
