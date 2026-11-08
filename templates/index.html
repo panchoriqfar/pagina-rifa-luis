@@ -636,12 +636,14 @@
 
         <!-- SELECCIÓN MÉTODO DE PAGO -->
         <div class="pt-1">
-          <label class="block text-xs font-bold text-slate-700 mb-2">Elige cómo deseas pagar:</label>
+          <label id="payment-method-label" class="block text-xs font-bold text-slate-700 mb-2">
+            {% if flow_available %}Elige cómo deseas pagar:{% else %}Medio de pago habilitado:{% endif %}
+          </label>
           
           <div class="space-y-2.5">
-            <!-- Opción A: Flow.cl -->
-            <label id="card-method-flow" class="payment-card-active flex items-start p-3.5 rounded-2xl border-2 border-slate-200 cursor-pointer transition">
-              <input type="radio" name="payment_method" value="flow" checked onchange="updatePaymentMethodUI()" class="mt-1 text-sky-600 focus:ring-sky-500">
+            <!-- Opción A: Flow.cl (Se oculta automáticamente si Flow no está disponible o cae) -->
+            <label id="card-method-flow" class="{% if flow_available %}payment-card-active flex{% else %}hidden{% endif %} items-start p-3.5 rounded-2xl border-2 border-slate-200 cursor-pointer transition">
+              <input type="radio" id="radio-method-flow" name="payment_method" value="flow" {% if flow_available %}checked{% else %}disabled{% endif %} onchange="updatePaymentMethodUI()" class="mt-1 text-sky-600 focus:ring-sky-500">
               <div class="ml-3 w-full">
                 <div class="flex items-center justify-between flex-wrap gap-1">
                   <span class="text-sm font-extrabold text-slate-900">Pago en Línea con Flow.cl</span>
@@ -658,8 +660,8 @@
             </label>
 
             <!-- Opción B: Transferencia -->
-            <label id="card-method-transfer" class="flex items-start p-3.5 rounded-2xl border-2 border-slate-200 cursor-pointer transition">
-              <input type="radio" name="payment_method" value="transfer" onchange="updatePaymentMethodUI()" class="mt-1 text-sky-600 focus:ring-sky-500">
+            <label id="card-method-transfer" class="{% if not flow_available %}payment-card-active {% endif %}flex items-start p-3.5 rounded-2xl border-2 border-slate-200 cursor-pointer transition">
+              <input type="radio" id="radio-method-transfer" name="payment_method" value="transfer" {% if not flow_available %}checked{% endif %} onchange="updatePaymentMethodUI()" class="mt-1 text-sky-600 focus:ring-sky-500">
               <div class="ml-3 w-full">
                 <div class="flex items-center justify-between flex-wrap gap-1">
                   <span class="text-sm font-extrabold text-slate-900">Transferencia Bancaria (CuentaRUT)</span>
@@ -995,6 +997,35 @@
       }
     }
 
+    function disableFlowAndForceTransfer(noticeMessage) {
+      const flowCard = document.getElementById("card-method-flow");
+      const flowRadio = document.getElementById("radio-method-flow");
+      const transferRadio = document.getElementById("radio-method-transfer");
+      const labelEl = document.getElementById("payment-method-label");
+
+      if (flowCard) {
+        flowCard.classList.remove("flex", "payment-card-active");
+        flowCard.classList.add("hidden");
+      }
+      if (flowRadio) {
+        flowRadio.checked = false;
+        flowRadio.disabled = true;
+      }
+      if (transferRadio) {
+        transferRadio.checked = true;
+      }
+      if (labelEl) {
+        labelEl.innerText = "Medio de pago habilitado:";
+      }
+      updatePaymentMethodUI();
+
+      if (noticeMessage) {
+        const errorBox = document.getElementById("modal-error-box");
+        errorBox.innerText = noticeMessage;
+        errorBox.classList.remove("hidden");
+      }
+    }
+
     function updatePaymentMethodUI() {
       const selectedRadio = document.querySelector("input[name='payment_method']:checked");
       if (!selectedRadio) return;
@@ -1005,13 +1036,13 @@
       const total = selectedNumbers.size * TICKET_PRICE;
       const totalStr = total > 0 ? ` ($${total.toLocaleString('es-CL')} CLP)` : "";
 
-      if (method === "flow") {
+      if (method === "flow" && flowCard && !flowCard.classList.contains("hidden")) {
         flowCard.classList.add("payment-card-active");
         transferCard.classList.remove("payment-card-active");
         btnText.innerText = `🔒 Ir a Pagar con Flow.cl${totalStr}`;
       } else {
         transferCard.classList.add("payment-card-active");
-        flowCard.classList.remove("payment-card-active");
+        if (flowCard) flowCard.classList.remove("payment-card-active");
         btnText.innerText = `🏦 Reservar y Ver Datos CuentaRUT${totalStr}`;
       }
     }
@@ -1072,8 +1103,14 @@
 
         const data = await response.json();
         if (!response.ok) {
-          errorBox.innerText = data.detail || "Error al procesar la reserva.";
-          errorBox.classList.remove("hidden");
+          if (paymentMethod === "flow" && (response.status === 502 || response.status === 503)) {
+            disableFlowAndForceTransfer(
+              data.detail || "Flow.cl no se encuentra disponible en este momento. Se ha dejado Transferencia Bancaria como único medio de pago."
+            );
+          } else {
+            errorBox.innerText = data.detail || "Error al procesar la reserva.";
+            errorBox.classList.remove("hidden");
+          }
           btn.disabled = false;
           updatePaymentMethodUI();
           fetchGridData();

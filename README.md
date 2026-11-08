@@ -14,7 +14,7 @@ Aplicación web completa, moderna y lista para producción diseñada para la rec
    - Polling en vivo cada 10 segundos para actualizar la disponibilidad sin recargar la página.
 
 2. **Doble Medio de Pago y Control de Tiempos:**
-   - **Flow.cl:** Reserva de números por **10 minutos**. Firma criptográfica HMAC-SHA256 y simulador visual local integrado para pruebas sin llaves.
+   - **Flow.cl:** Reserva de números por **10 minutos**. Firma criptográfica HMAC-SHA256. Si Flow.cl no está disponible, se deja automáticamente **Transferencia Bancaria** como único medio de pago.
    - **Transferencia Bancaria Manual:** Bloqueo temporal por **30 minutos** con **temporizador regresivo en vivo**. CuentaRUT preconfigurada para Francisco Riquelme, botón para copiar datos y enlace directo a WhatsApp con mensaje prellenado.
 
 3. **Prevención de Carreras y Liberación Automática:**
@@ -40,7 +40,7 @@ Aplicación web completa, moderna y lista para producción diseñada para la rec
 - **Backend:** Python 3.12, FastAPI, SQLAlchemy 2.0 (ORM), Pydantic v2.
 - **Base de Datos:** PostgreSQL en **Neon.tech** (con soporte SSL) o **SQLite** local por defecto para desarrollo instantáneo sin configuración previa.
 - **Frontend:** Jinja2 Templates, HTML5, Tailwind CSS, JavaScript Vanilla moderno.
-- **Pasarela:** Flow.cl API REST + Simulador Mock.
+- **Pasarela:** Flow.cl API REST oficial (con fallback exclusivo a Transferencia Bancaria si Flow cae).
 - **Email:** Resend API.
 
 ---

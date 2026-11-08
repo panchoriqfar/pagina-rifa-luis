@@ -240,14 +240,12 @@ def create_order(db: Session, order_data: OrderCreate, base_url: str) -> dict:
     db.commit()
     db.refresh(order)
 
-    # Procesar Flow si corresponde
+    # Procesar Flow si corresponde (sin simulador bajo ninguna circunstancia)
     redirect_url = None
     if order_data.payment_method == "flow":
         effective_base = "http://localhost:8000" if "testserver" in base_url else base_url
-        if FLOW_API_KEY.lower() == "mock":
-            redirect_url = f"{base_url}/flow-checkout-simulation?order_id={order.id}"
-        elif FLOW_API_KEY and FLOW_SECRET_KEY:
-            # Llamada real a Flow.cl
+        if FLOW_API_KEY and FLOW_SECRET_KEY:
+            # Llamada oficial a Flow.cl
             try:
                 numbers_label = ", ".join(f"#{n:02d}" for n in requested_numbers)
                 flow_params = {
@@ -276,7 +274,6 @@ def create_order(db: Session, order_data: OrderCreate, base_url: str) -> dict:
                     redirect_url = f"{flow_pay_url}?token={token}"
                 else:
                     print(f"[Flow Error] HTTP {resp.status_code}: {resp.text}")
-                    # Revertir reserva y orden para no dejar números bloqueados ni caer en simulador
                     for t in locked_tickets:
                         t.status = "available"
                         t.reserved_until = None
@@ -284,14 +281,23 @@ def create_order(db: Session, order_data: OrderCreate, base_url: str) -> dict:
                     db.delete(order)
                     db.commit()
 
-                    err_msg = "No se pudo iniciar el pago en Flow.cl. Por favor verifica tus datos o intenta con Transferencia Bancaria."
+                    is_email_error = False
                     try:
                         err_json = resp.json()
                         if err_json.get("code") == 1620 or "email" in str(err_json.get("message", "")).lower():
-                            err_msg = "El correo electrónico ingresado no es válido o su dominio no existe. Por favor ingresa un correo real (ej. Gmail, Outlook, Hotmail, iCloud) para pagar con Flow.cl."
+                            is_email_error = True
                     except Exception:
                         pass
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=err_msg)
+
+                    if is_email_error:
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="El correo electrónico ingresado no es válido o su dominio no existe. Por favor ingresa un correo real (ej. Gmail, Outlook, Hotmail, iCloud)."
+                        )
+                    raise HTTPException(
+                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                        detail="Flow.cl no se encuentra disponible en este momento. Se ha habilitado Transferencia Bancaria como único medio de pago."
+                    )
             except HTTPException:
                 raise
             except Exception as e:
@@ -303,8 +309,8 @@ def create_order(db: Session, order_data: OrderCreate, base_url: str) -> dict:
                 db.delete(order)
                 db.commit()
                 raise HTTPException(
-                    status_code=status.HTTP_502_BAD_GATEWAY,
-                    detail="Error de conexión con Flow.cl. Por favor intenta nuevamente en unos segundos o elige Transferencia Bancaria."
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Flow.cl no se encuentra disponible en este momento. Se ha habilitado Transferencia Bancaria como único medio de pago."
                 )
         else:
             for t in locked_tickets:
@@ -315,7 +321,7 @@ def create_order(db: Session, order_data: OrderCreate, base_url: str) -> dict:
             db.commit()
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="La pasarela Flow.cl no está disponible en este momento. Por favor utiliza Transferencia Bancaria."
+                detail="Flow.cl no se encuentra disponible en este momento. Se ha habilitado Transferencia Bancaria como único medio de pago."
             )
 
     return {

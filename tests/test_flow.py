@@ -73,7 +73,14 @@ def test_full_flow():
         assert "Numero;Estado;Comprador;Iniciales" in csv_res.text
         print("✓ PASS: Exportación de CSV para el sorteo generada con éxito.")
 
-        # 8. Probar creación de orden con Pasarela Oficial Flow.cl
+        # 8. Verificar que el simulador está eliminado por completo (404)
+        sim_get = client.get(f"/flow-checkout-simulation?order_id={order_id}")
+        assert sim_get.status_code == 404, f"El simulador no debe existir, retornó {sim_get.status_code}"
+        sim_post = client.post("/api/mock-flow/confirm", data={"order_id": order_id, "action": "pay"})
+        assert sim_post.status_code == 404, f"El endpoint mock no debe existir, retornó {sim_post.status_code}"
+        print("✓ PASS: Simulador de pagos eliminado de todo registro (HTTP 404).")
+
+        # 9. Probar creación de orden con Pasarela Oficial Flow.cl
         flow_payload = {
             "numbers": [45],
             "buyer_name": "María González",

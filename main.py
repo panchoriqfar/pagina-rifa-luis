@@ -124,6 +124,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
             "total_tickets": TOTAL_TICKETS,
             "whatsapp_number": WHATSAPP_NUMBER,
             "draw_date": DRAW_DATE,
+            "flow_available": bool(FLOW_API_KEY and FLOW_SECRET_KEY),
             "bank_info": {
                 "name": BANK_BENEFICIARY_NAME,
                 "rut": BANK_BENEFICIARY_RUT,
@@ -195,43 +196,8 @@ async def get_order_status(order_id: str, db: Session = Depends(get_db)):
     }
 
 # ==========================================
-# FLUJO DE PAGO FLOW.CL + MOCK (SOLO SI FLOW_API_KEY == 'mock')
+# FLUJO DE PAGO OFICIAL FLOW.CL
 # ==========================================
-@app.get("/flow-checkout-simulation", response_class=HTMLResponse)
-async def flow_simulation(request: Request, order_id: str, db: Session = Depends(get_db)):
-    """Pantalla simulada de Flow deshabilitada en producción."""
-    if FLOW_API_KEY.lower() != "mock":
-        raise HTTPException(status_code=403, detail="El simulador de pagos está deshabilitado en producción.")
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Orden no encontrada")
-    return templates.TemplateResponse(
-        request=request,
-        name="flow_mock.html",
-        context={
-            "request": request,
-            "order": order,
-            "ticket_price": TICKET_PRICE
-        }
-    )
-
-@app.post("/api/mock-flow/confirm")
-async def mock_flow_confirm(order_id: str = Form(...), action: str = Form(...), db: Session = Depends(get_db)):
-    """Procesa el resultado del simulador de Flow (solo permitido en modo mock)."""
-    if FLOW_API_KEY.lower() != "mock":
-        raise HTTPException(status_code=403, detail="El simulador de pagos está deshabilitado en producción.")
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Orden no encontrada")
-
-    if action == "pay":
-        confirm_order_paid(db, order)
-        return RedirectResponse(url=f"/?order_id={order.id}&flow_success=1", status_code=303)
-    else:
-        order.payment_status = "cancelled"
-        release_order_tickets(db, order.id)
-        return RedirectResponse(url=f"/?order_id={order.id}&flow_cancelled=1", status_code=303)
-
 @app.post("/api/payments/flow/webhook")
 async def flow_webhook(request: Request, db: Session = Depends(get_db)):
     """Webhook oficial de Flow.cl al completarse un pago."""
